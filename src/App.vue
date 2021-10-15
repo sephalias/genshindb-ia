@@ -3,14 +3,23 @@
     <header id="navigation" class="header u-unselectable header-animated">
       <div class="header-brand">
         <div class="nav-item no-hover">
-          <a href="/"><h6 class="title">GenshinDB</h6></a>
+          <a href="/"
+            ><h6 class="title">
+              GenshinDB <span class="font-thin">Interactive</span>
+            </h6></a
+          >
+        </div>
+        <div
+          class="nav-item nav-btn"
+          id="header-btn"
+          @click="toggleNav($event)"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
         </div>
       </div>
-      <div class="nav-item nav-btn" id="header-btn">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
+
       <div class="header-nav" id="header-menu">
         <div class="nav-right">
           <router-link
@@ -25,7 +34,7 @@
               :class="[isActive && 'active']"
               @click="navigate"
             >
-              <a>{{ link.name }}</a>
+              <a class="nav-dropdown-link">{{ link.name }}</a>
             </div>
           </router-link>
         </div>
@@ -56,7 +65,12 @@ export default {
       },
     };
   },
-  components: {},
+  methods: {
+    toggleNav(event) {
+      event.target.classList.toggle("active");
+      document.querySelector(".header-nav").classList.toggle("active");
+    },
+  },
 };
 </script>
 
