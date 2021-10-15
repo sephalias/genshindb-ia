@@ -7,11 +7,12 @@
             <select
               class="form-group-input input-small"
               placeholder="Choose one"
-              v-model="content"
+              v-model="folder"
+              @change="onFolderChange($event)"
             >
               <option
                 :value="index"
-                v-for="(content, index) in schema"
+                v-for="(folder, index) in schema"
                 :key="index"
               >
                 {{ index }}
@@ -20,19 +21,21 @@
             <select
               class="form-group-input input-small"
               placeholder="Choose one"
-              v-model="subContent"
+              v-model="category"
+              @change="onCategoryChange($event)"
             >
               <option
-                :value="subContent"
-                v-for="subContent in schema[content]"
-                :key="subContent"
+                :value="category"
+                v-for="category in schema[folder]"
+                :key="category"
               >
-                {{ subContent }}
+                {{ category }}
               </option>
             </select>
             <input
               class="form-group-input input-small w-100"
               v-model="query"
+              :disabled="queryDisabled"
               @keyup.enter="getData()"
             />
             <button
@@ -42,33 +45,55 @@
               Go
             </button>
           </div>
+          <div class="u-flex m-1" v-if="suggestion">
+            <label class="mr-1">
+              Suggestions:
+            </label>
+            <div class="tag-container">
+              <div
+                class="tag tag--primary"
+                v-for="item in suggestion"
+                :key="item"
+                @click="setSuggestionToQuery(item)"
+              >
+                {{ item }}
+              </div>
+            </div>
+          </div>
         </div>
         <div id="options" class="card m-1">
           <p class="title u-text-center mb-0">Options</p>
           <div class="u-block">
             <div
-              class="form-ext-control form-ext-checkbox tooltip u-inline-block"
-              :data-tooltip="description"
-              v-for="(description, index) in optionsUI"
+              class="form-ext-control form-ext-checkbox u-inline-block"
+              v-for="(value, index) in options"
               :key="index"
             >
               <input
                 :id="'check' + index"
                 class="form-ext-input"
                 type="checkbox"
-                :v-model="options[index]"
+                v-model="options[index]"
+                v-if="typeof options[index] == 'boolean'"
               />
-              <label class="form-ext-label" :for="'check' + index">{{
-                index
-              }}</label>
+              <label
+                class="form-ext-label"
+                :for="'check' + index"
+                v-if="typeof options[index] == 'boolean'"
+                @mouseover="optionHover = index"
+                @mouseleave="optionHover = null"
+              >
+                {{ index }}
+              </label>
             </div>
           </div>
           <div class="row">
             <div class="col-6">
               <label
-                class="m-0 tooltip"
+                class="m-0"
                 for="selectResultLanguage"
-                data-tooltip="Output language that you want your results to be in."
+                @mouseover="optionHover = 'resultLanguage'"
+                @mouseleave="optionHover = null"
               >
                 Result Language:
               </label>
@@ -88,9 +113,10 @@
             </div>
             <div class="col-6">
               <label
-                class="m-0 tooltip"
+                class="m-0"
                 for="selectQueryLanguages"
-                data-tooltip="Array of languages that your query will be searched in."
+                @mouseover="optionHover = 'queryLanguages'"
+                @mouseleave="optionHover = null"
               >
                 Query Languages:
               </label>
@@ -123,6 +149,12 @@
               </div>
             </div>
           </div>
+          <blockquote class="mx-1 mt-1 animated fadeIn" v-if="optionHover">
+            <span
+              ><strong>{{ optionHover }}:</strong>
+              {{ optionsUI[optionHover] }}
+            </span>
+          </blockquote>
         </div>
       </div>
       <div class="col-6 col-sm-12" id="data">
@@ -134,13 +166,10 @@
 </template>
 
 <script>
-var genshindb;
-async function loadDatabase() {
-  genshindb = await import(/* webpackChunkName: "genshindb" */ "genshin-db");
-}
-
-//import * as genshindb from "genshin-db";
 import { defineAsyncComponent } from "vue";
+import * as api from "@/assets/js/api.js";
+import * as axios from "axios";
+axios.defaults.headers.get["folder-type"] = "application/json";
 
 export default {
   components: {
@@ -152,6 +181,7 @@ export default {
       data: null,
       query: "",
       options: {
+        dumpResult: false,
         matchAltNames: false,
         matchAliases: false,
         matchCategories: false,
@@ -159,22 +189,29 @@ export default {
         resultLanguage: "English",
         queryLanguages: ["English"],
       },
-      content: "",
-      subContent: "",
+      folder: null,
+      category: null,
+      suggestion: null,
+
       code: null,
 
       dataLoad: false,
-
+      queryDisabled: false,
+      optionHover: null,
       languages: null,
     };
   },
   computed: {
     schema() {
-      const schema = require("@/assets/js/schema.js").default;
-      return schema;
+      return require("@/assets/js/schema.js").default;
+    },
+    suggestions() {
+      return require("@/assets/js/suggestions.js").default;
     },
     optionsUI() {
       return {
+        dumpResult:
+          "The query result will return an object with the properties: query, folder, match, options, filename, result.",
         matchAltNames: "Allows the matching of alternate or custom names.",
         matchAliases:
           "Allows the matching of aliases. These are searchable fields that returns the data object the query matched in.",
@@ -182,56 +219,94 @@ export default {
           "Allows the matching of categories. If true, then returns an array if it matches.",
         verboseCategories:
           "Used if a category is matched. If true, then replaces each string name in the array with the data object instead.",
+        queryLanguages:
+          "Array of languages that your query will be searched in.",
+        resultLanguage: "Output language that you want your results to be in.",
       };
     },
   },
   mounted() {
-    this.dataLoad = true;
-    loadDatabase().then(() => {
-      this.dataLoad = false;
-      this.languages = genshindb.Languages;
-    });
-    if (!this.content) this.content = Object.keys(this.schema)[0];
-    if (!this.subContent && this.content)
-      this.subContent = this.schema[this.content][0];
+    this.getLanguages();
+    if (!this.folder) this.folder = Object.keys(this.schema)[0];
+    if (!this.category && this.folder)
+      this.category = this.schema[this.folder][0];
+    if (!this.suggestion && this.category) {
+      this.suggestion = this.suggestions[this.category];
+    }
+    this.updateControls();
   },
   methods: {
-    async fetchData() {
-      return await genshindb[this.content](this.query, this.options);
+    getLanguages() {
+      this.dataLoad = true;
+      let url = api.getUrl("languages");
+      axios
+        .get(url)
+        .then((response) => (this.languages = response.data))
+        .catch((error) => {
+          console.log(error);
+          this.dataLoad = false;
+        })
+        .finally(() => {
+          this.dataLoad = false;
+        });
+    },
+    getData() {
+      this.dataLoad = true;
+      let url = api.getUrl(this.folder, this.query, this.options);
+      axios
+        .get(url)
+        .then((response) => (this.data = response.data))
+        .catch((error) => {
+          console.log(error);
+          this.dataLoad = false;
+        })
+        .finally(() => {
+          this.dataLoad = false;
+          this.generateCode();
+        });
     },
     generateCode() {
       let options = Object.entries(this.options).filter(
         ([key, value]) => key && value
       );
-      this.code =
-        "genshinDb." +
-        this.content +
-        '("' +
-        this.query +
-        '", ' +
-        JSON.stringify(Object.fromEntries(options)) +
-        ");";
+      this.code = `genshinDb.${this.folder}("${this.query}", ${JSON.stringify(
+        Object.fromEntries(options)
+      )}");`;
     },
-    getData() {
-      if (this.content == "Characters") {
-        if (this.subContent == "character") {
-          console.log("character");
-        }
-      }
-      if (this.subContent == "all") {
+    updateControls() {
+      this.suggestion = this.suggestions[this.category];
+      if (this.suggestion) this.query = this.suggestion[0];
+      else this.query = "";
+      if (this.category == "all") {
+        this.queryDisabled = true;
         this.options.matchCategories = true;
-        this.query = "names";
+        this.suggestion = null;
+      } else if (this.category == "query") {
+        this.options.matchCategories = false;
+        this.queryDisabled = false;
+      } else {
+        this.options.matchCategories = true;
+        this.queryDisabled = false;
       }
-      this.dataLoad = true;
-      this.fetchData().then((data) => {
-        this.dataLoad = false;
-        this.data = data;
-      });
-      this.generateCode();
     },
-    setContent(content) {
-      this.content = content;
-      this.subContent = this.subContents[content.toLowerCase()][0];
+    onFolderChange(event) {
+      this.category = this.schema[event.target.value][0];
+      this.updateControls();
+    },
+    onCategoryChange(event) {
+      this.suggestion = this.suggestions[event.target.value];
+      this.updateControls();
+    },
+    setOptionInfo(text) {
+      if (text) {
+        this.optionHover = text;
+      } else {
+        this.optionHover = "";
+      }
+      console.log(text);
+    },
+    setSuggestionToQuery(suggestion) {
+      this.query = suggestion;
     },
     addQueryLanguage(event) {
       let language = event.target.value;
