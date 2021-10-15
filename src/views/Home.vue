@@ -48,59 +48,19 @@
           <div class="u-block">
             <div
               class="form-ext-control form-ext-checkbox tooltip u-inline-block"
-              data-tooltip="Allows the matching of alternate or custom names."
+              :data-tooltip="description"
+              v-for="(description, index) in optionsUI"
+              :key="index"
             >
               <input
-                id="checkAltNames"
+                :id="'check' + index"
                 class="form-ext-input"
                 type="checkbox"
-                v-model="options.matchAltNames"
+                :v-model="options[index]"
               />
-              <label class="form-ext-label" for="checkAltNames"
-                >Match Alt Names</label
-              >
-            </div>
-            <div
-              class="form-ext-control form-ext-checkbox tooltip u-inline-block"
-              data-tooltip="Allows the matching of aliases. These are searchable fields that returns the data object the query matched in."
-            >
-              <input
-                id="checkMatchAliases"
-                class="form-ext-input"
-                type="checkbox"
-                v-model="options.matchAliases"
-              />
-              <label class="form-ext-label" for="checkMatchAliases"
-                >Match Aliases</label
-              >
-            </div>
-            <div
-              class="form-ext-control form-ext-checkbox tooltip u-inline-block"
-              data-tooltip="Allows the matching of categories. If true, then returns an array if it matches."
-            >
-              <input
-                id="checkMatchCategories"
-                class="form-ext-input"
-                type="checkbox"
-                v-model="options.matchCategories"
-              />
-              <label class="form-ext-label" for="checkMatchCategories"
-                >Match Categories</label
-              >
-            </div>
-            <div
-              class="form-ext-control form-ext-checkbox tooltip u-inline-block"
-              data-tooltip="Used if a category is matched. If true, then replaces each string name in the array with the data object instead."
-            >
-              <input
-                id="checkVerboseCategories"
-                class="form-ext-input"
-                type="checkbox"
-                v-model="options.verboseCategories"
-              />
-              <label class="form-ext-label" for="checkVerboseCategories"
-                >Verbose Categories</label
-              >
+              <label class="form-ext-label" :for="'check' + index">{{
+                index
+              }}</label>
             </div>
           </div>
           <div class="row">
@@ -212,6 +172,17 @@ export default {
     schema() {
       const schema = require("@/assets/js/schema.js").default;
       return schema;
+    },
+    optionsUI() {
+      return {
+        matchAltNames: "Allows the matching of alternate or custom names.",
+        matchAliases:
+          "Allows the matching of aliases. These are searchable fields that returns the data object the query matched in.",
+        matchCategories:
+          "Allows the matching of categories. If true, then returns an array if it matches.",
+        verboseCategories:
+          "Used if a category is matched. If true, then replaces each string name in the array with the data object instead.",
+      };
     },
   },
   mounted() {
