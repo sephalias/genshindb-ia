@@ -166,41 +166,26 @@
         </div>
       </div>
       <div class="col-6 col-sm-12" id="data">
-        <div class="card m-1" v-if="code">
-          <pre><code data-lang="JavaScript">{{ code }}</code></pre>
-        </div>
-        <div class="card m-1">
-          <div
-            v-if="dataLoad"
-            class="u-flex u-items-center u-justify-center"
-            style="background: linear-gradient(to right, rgb(142, 45, 226), rgb(74, 0, 224));"
-          >
-            <div class="animated loading hide-text loading-white">
-              <p>Hidden</p>
-            </div>
-          </div>
-          <VueJsonPretty
-            class="p-1"
-            :data="data"
-            :deep="2"
-            :showLength="true"
-            v-else
-          >
-          </VueJsonPretty>
-        </div>
+        <Code :code="code" />
+        <JsonView :data="data" :isLoading="dataLoad" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import * as genshindb from "genshin-db";
-import VueJsonPretty from "vue-json-pretty";
-import "vue-json-pretty/lib/styles.css";
+var genshindb;
+async function loadDatabase() {
+  genshindb = await import(/* webpackChunkName: "genshindb" */ "genshin-db");
+}
+
+//import * as genshindb from "genshin-db";
+import { defineAsyncComponent } from "vue";
 
 export default {
   components: {
-    VueJsonPretty,
+    JsonView: defineAsyncComponent(() => import("@/components/home/JsonView")),
+    Code: defineAsyncComponent(() => import("@/components/home/Code")),
   },
   data() {
     return {
@@ -219,64 +204,30 @@ export default {
       code: null,
 
       dataLoad: false,
+
+      languages: null,
     };
   },
   computed: {
-    languages() {
-      return genshindb.Languages;
-    },
     schema() {
-      return {
-        characters: [
-          "all",
-          "query",
-          "rarity",
-          "element",
-          "weapontype",
-          "substat",
-          "gender",
-          "region",
-          "birthday",
-          "costs",
-        ],
-        weapons: ["all", "query", "weapontype", "rarity", "substat", "costs"],
-        artifacts: ["all", "query", "rarity"],
-        weaponmaterialtypes: ["day", "region", "domainofforgery"],
-        talentmaterialtypes: ["day", "region", "domainofmastery"],
-        materials: [
-          "all",
-          "query",
-          "rarity",
-          "category",
-          "materialtype",
-          "dropdomain",
-          "daysofweek",
-        ],
-        domains: [
-          "all",
-          "query",
-          "region",
-          "domainentrance",
-          "domaintype",
-          "recommendedelements",
-          "daysofweek",
-          "monsterlist",
-        ],
-        enemies: ["all", "query", "type", "category"],
-      };
+      const schema = require("@/assets/js/schema.js").default;
+      return schema;
     },
   },
   mounted() {
+    this.dataLoad = true;
+    loadDatabase().then(() => {
+      this.dataLoad = false;
+      this.languages = genshindb.Languages;
+    });
     if (!this.content) this.content = Object.keys(this.schema)[0];
     if (!this.subContent && this.content)
       this.subContent = this.schema[this.content][0];
   },
   methods: {
     async fetchData() {
-      return await genshindb[this.content.toLowerCase()](
-        this.query,
-        this.options
-      );
+      console.log(genshindb);
+      return await genshindb[this.content](this.query, this.options);
     },
     generateCode() {
       let options = Object.entries(this.options).filter(
