@@ -197,7 +197,6 @@ export default {
   },
   methods: {
     async fetchData() {
-      console.log(genshindb);
       return await genshindb[this.content](this.query, this.options);
     },
     generateCode() {
