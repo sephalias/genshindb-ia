@@ -9,7 +9,7 @@ export default {
     "Friday",
     "Saturday",
   ],
-  dayofweek: [
+  daysofweek: [
     "Sunday",
     "Monday",
     "Tuesday",
@@ -18,8 +18,22 @@ export default {
     "Friday",
     "Saturday",
   ],
+  domaintype: [
+    "Artifact",
+    "Weapon Ascension Material",
+    "Talent Level-Up Material",
+  ],
   weapontype: ["Bow", "Claymore", "Catalyst", "Polearm", "Sword"],
   rarity: [5, 4, 3, 2, 1],
+  recommendedelements: [
+    "Anemo",
+    "Cryo",
+    "Dendro",
+    "Electro",
+    "Geo",
+    "Hydro",
+    "Pyro",
+  ],
   element: ["Anemo", "Cryo", "Dendro", "Electro", "Geo", "Hydro", "Pyro"],
   gender: ["Male", "Female"],
   birthday: [
