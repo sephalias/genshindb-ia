@@ -9,12 +9,12 @@
   },
   "dependencies": {
     "@alenaksu/json-viewer": "^0.3.4",
-    "axios": "^0.23.0",
+    "axios": "^0.25.0",
     "cirrus-ui": "^0.6.3",
     "core-js": "^3.6.5",
-    "vue": "^3.0.0",
-    "vue-json-pretty": "^2.0.4",
-    "vue-router": "^4.0.11"
+    "vue": "^3.2.29",
+    "vue-json-pretty": "^2.0.6",
+    "vue-router": "^4.0.12"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -22,9 +22,10 @@
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
     "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0",
-    "sass-loader": "^10.2.0"
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.4.1",
+    "sass": "^1.49.7",
+    "sass-loader": "^12.4.1"
   },
   "eslintConfig": {
     "root": true,
