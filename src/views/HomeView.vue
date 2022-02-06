@@ -80,7 +80,7 @@ axios.defaults.headers.get["content-type"] = "application/json";
 export default {
   components: {
     JsonView: defineAsyncComponent(() => import("@/components/home/JsonView")),
-    Code: defineAsyncComponent(() => import("@/components/home/Code")),
+    Code: defineAsyncComponent(() => import("@/components/home/CodeSection")),
     Options: defineAsyncComponent(() => import("@/components/home/Options")),
   },
   data() {
@@ -121,7 +121,7 @@ export default {
       axios
         .get(url)
         .then((response) => (this.data = response.data))
-        .catch((error) => {
+        .catch(() => {
           this.dataLoad = false;
         })
         .finally(() => {
