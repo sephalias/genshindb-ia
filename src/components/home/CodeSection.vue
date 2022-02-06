@@ -23,7 +23,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .copy-btn {
   position: absolute;
   bottom: 0;
