@@ -46,9 +46,7 @@
             </button>
           </div>
           <div class="u-flex m-1" v-if="suggestion">
-            <label class="mr-1">
-              Suggestions:
-            </label>
+            <label class="mr-1"> Suggestions: </label>
             <div class="tag-container">
               <div
                 class="tag tag--primary"
