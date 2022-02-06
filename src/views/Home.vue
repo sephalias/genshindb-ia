@@ -117,14 +117,11 @@ export default {
   methods: {
     getData() {
       this.dataLoad = true;
-      console.log(this.options);
       let url = api.getUrl(this.folder, this.query, this.options);
-      console.log(url);
       axios
         .get(url)
         .then((response) => (this.data = response.data))
         .catch((error) => {
-          console.log(error);
           this.dataLoad = false;
         })
         .finally(() => {
