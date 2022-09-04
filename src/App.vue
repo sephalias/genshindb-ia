@@ -47,8 +47,6 @@
 </template>
 
 <script>
-import "cirrus-ui";
-
 export default {
   name: "App",
   data() {
@@ -73,5 +71,3 @@ export default {
   },
 };
 </script>
-
-<style></style>

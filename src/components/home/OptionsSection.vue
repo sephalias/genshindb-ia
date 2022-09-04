@@ -47,8 +47,9 @@
               v-for="language in languages"
               :key="language"
               :value="language"
-              >{{ language }}</option
             >
+              {{ language }}
+            </option>
           </select>
         </div>
         <div class="col-6">
@@ -71,8 +72,9 @@
               v-for="language in languages"
               :key="language"
               :value="language"
-              >{{ language }}</option
             >
+              {{ language }}
+            </option>
           </select>
           <div class="tag-container u-center mt-2">
             <div
@@ -103,12 +105,12 @@
 import { defineAsyncComponent } from "vue";
 import axios from "axios";
 
-import * as api from "@/assets/js/api.js";
+import getUrl from "@/assets/js/api.js";
 
 export default {
   components: {
     OptionsSkeleton: defineAsyncComponent(() =>
-      import("@/components/home/OptionsSkeleton")
+      import("@/components/home/OptionsSkeleton.vue")
     ),
   },
   data() {
@@ -143,7 +145,7 @@ export default {
     getLanguages() {
       this.isLoading = true;
       axios
-        .get(api.getUrl("languages"))
+        .get(getUrl("languages"))
         .then((response) => (this.languages = response.data))
         .catch((error) => {
           console.log(error);

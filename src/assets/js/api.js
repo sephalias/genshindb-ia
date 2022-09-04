@@ -1,4 +1,4 @@
-const baseUrl = process.env.VUE_APP_API_BASE_URL;
+const baseUrl = import.meta.env.VITE_APP_API_BASE_URL;
 
 /**
  * Fetches data from api.
@@ -9,7 +9,7 @@ const baseUrl = process.env.VUE_APP_API_BASE_URL;
  * @param {Dict} options
  *
  * */
-export function getUrl(folder, query, options) {
+export default function getUrl(folder, query, options) {
   var url = baseUrl + folder;
   if (query) {
     var params = "query=" + query;

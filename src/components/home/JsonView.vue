@@ -33,7 +33,7 @@ export default {
   components: {
     VueJsonPretty,
     JsonViewSkeleton: defineAsyncComponent(() =>
-      import("@/components/home/JsonViewSkeleton")
+      import("@/components/home/JsonViewSkeleton.vue")
     ),
   },
   data() {

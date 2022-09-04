@@ -70,19 +70,24 @@
 </template>
 
 <script>
+import getUrl from "@/assets/js/api.js";
+import axios from "axios";
 import { defineAsyncComponent } from "vue";
-import * as api from "@/assets/js/api.js";
-import * as axios from "axios";
 axios.defaults.headers.get["content-type"] = "application/json";
 
 import schema from "@/assets/js/schema.json";
 import suggestions from "@/assets/js/suggestions.json";
+
 export default {
   components: {
-    JsonView: defineAsyncComponent(() => import("@/components/home/JsonView")),
-    Code: defineAsyncComponent(() => import("@/components/home/CodeSection")),
+    JsonView: defineAsyncComponent(() =>
+      import("@/components/home/JsonView.vue")
+    ),
+    Code: defineAsyncComponent(() =>
+      import("@/components/home/CodeSection.vue")
+    ),
     Options: defineAsyncComponent(() =>
-      import("@/components/home/OptionsSection")
+      import("@/components/home/OptionsSection.vue")
     ),
   },
   data() {
@@ -93,7 +98,6 @@ export default {
       folder: null,
       category: null,
       suggestion: null,
-
       code: null,
       dataLoad: false,
       queryDisabled: false,
@@ -119,7 +123,7 @@ export default {
   methods: {
     getData() {
       this.dataLoad = true;
-      let url = api.getUrl(this.folder, this.query, this.options);
+      let url = getUrl(this.folder, this.query, this.options);
       axios
         .get(url)
         .then((response) => (this.data = response.data))
