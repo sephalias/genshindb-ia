@@ -1,7 +1,7 @@
 <template>
   <div id="home">
     <div class="row">
-      <div class="col-6 col-sm-12">
+      <div class="col-md-6 col-sm-12">
         <div class="card m-1" id="query">
           <div class="form-group m-0">
             <select
@@ -61,7 +61,7 @@
         </div>
         <Options @options="getOptions" />
       </div>
-      <div class="col-6 col-sm-12" id="data">
+      <div class="col-md-6 col-sm-12" id="data">
         <Code :code="code" />
         <JsonView :data="data" :isLoading="dataLoad" />
       </div>
