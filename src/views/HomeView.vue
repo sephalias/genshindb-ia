@@ -137,7 +137,13 @@ export default {
     },
     generateCode() {
       let options = Object.entries(this.options).filter(
-        ([key, value]) => key && value
+        ([key, value]) =>
+          key &&
+          value &&
+          !(
+            (key == "resultLanguage" && value == "English") ||
+            (key == "queryLanguages" && value == "English")
+          )
       );
       this.code = `genshinDb.${this.folder}("${this.query}", ${JSON.stringify(
         Object.fromEntries(options)
