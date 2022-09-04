@@ -75,6 +75,8 @@ import * as api from "@/assets/js/api.js";
 import * as axios from "axios";
 axios.defaults.headers.get["content-type"] = "application/json";
 
+import schema from "@/assets/js/schema.json";
+import suggestions from "@/assets/js/suggestions.json";
 export default {
   components: {
     JsonView: defineAsyncComponent(() => import("@/components/home/JsonView")),
@@ -99,10 +101,10 @@ export default {
   },
   computed: {
     schema() {
-      return require("@/assets/js/schema.js").default;
+      return schema;
     },
     suggestions() {
-      return require("@/assets/js/suggestions.js").default;
+      return suggestions;
     },
   },
   mounted() {

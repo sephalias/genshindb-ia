@@ -1,42 +1,42 @@
-export default {
-  all: ["names"],
-  day: [
+{
+  "all": ["names"],
+  "day": [
     "Sunday",
     "Monday",
     "Tuesday",
     "Wednesday",
     "Thursday",
     "Friday",
-    "Saturday",
+    "Saturday"
   ],
-  daysofweek: [
+  "daysofweek": [
     "Sunday",
     "Monday",
     "Tuesday",
     "Wednesday",
     "Thursday",
     "Friday",
-    "Saturday",
+    "Saturday"
   ],
-  domaintype: [
+  "domaintype": [
     "Artifact",
     "Weapon Ascension Material",
-    "Talent Level-Up Material",
+    "Talent Level-Up Material"
   ],
-  weapontype: ["Bow", "Claymore", "Catalyst", "Polearm", "Sword"],
-  rarity: [5, 4, 3, 2, 1],
-  recommendedelements: [
+  "weapontype": ["Bow", "Claymore", "Catalyst", "Polearm", "Sword"],
+  "rarity": [5, 4, 3, 2, 1],
+  "recommendedelements": [
     "Anemo",
     "Cryo",
     "Dendro",
     "Electro",
     "Geo",
     "Hydro",
-    "Pyro",
+    "Pyro"
   ],
-  element: ["Anemo", "Cryo", "Dendro", "Electro", "Geo", "Hydro", "Pyro"],
-  gender: ["Male", "Female"],
-  birthday: [
+  "element": ["Anemo", "Cryo", "Dendro", "Electro", "Geo", "Hydro", "Pyro"],
+  "gender": ["Male", "Female"],
+  "birthday": [
     "January",
     "February",
     "March",
@@ -48,7 +48,7 @@ export default {
     "September",
     "October",
     "November",
-    "December",
+    "December"
   ],
-  region: ["Inazuma", "Liyue", "Mondstadt"],
-};
+  "region": ["Inazuma", "Liyue", "Mondstadt"]
+}
