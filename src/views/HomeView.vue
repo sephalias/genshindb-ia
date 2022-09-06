@@ -61,6 +61,7 @@
         </div>
         <Options @options="getOptions" />
         <Code :code="code" />
+        <API :link="link" />
       </div>
       <div class="col-md-6 col-sm-12" id="data">
         <JsonView :data="data" :isLoading="dataLoad" />
@@ -87,6 +88,7 @@ export default {
     Code: defineAsyncComponent(() =>
       import("@/components/home/CodeSection.vue")
     ),
+    API: defineAsyncComponent(() => import("@/components/home/APISection.vue")),
     Options: defineAsyncComponent(() =>
       import("@/components/home/OptionsSection.vue")
     ),
@@ -101,6 +103,7 @@ export default {
       category: null,
       suggestion: null,
       code: null,
+      link: null,
       dataLoad: false,
       queryDisabled: false,
     };
@@ -126,6 +129,7 @@ export default {
     getData() {
       this.dataLoad = true;
       let url = getUrl(this.folder, this.query, this.options);
+      console.log(url);
       axios
         .get(url)
         .then((response) => (this.data = response.data))
@@ -134,8 +138,25 @@ export default {
         })
         .finally(() => {
           this.dataLoad = false;
+          this.generateURL();
           this.generateCode();
         });
+    },
+    generateURL() {
+      let options = Object.entries(this.options).filter(
+        ([key, value]) =>
+          key &&
+          value &&
+          !(
+            (key == "resultLanguage" && value == "English") ||
+            (key == "queryLanguages" && value == "English")
+          )
+      );
+      let url = getUrl(this.folder, this.query);
+      options.forEach((option) => {
+        url += `&${option[0]}=${option[1]}`;
+      });
+      this.link = url;
     },
     generateCode() {
       let options = Object.entries(this.options).filter(
