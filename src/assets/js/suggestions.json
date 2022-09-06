@@ -50,5 +50,13 @@
     "November",
     "December"
   ],
-  "region": ["Inazuma", "Liyue", "Mondstadt"]
+  "region": [
+    "Mondstadt",
+    "Liyue",
+    "Inazuma",
+    "Sumeru",
+    "Fontaine",
+    "Natlan",
+    "Snezhnaya"
+  ]
 }

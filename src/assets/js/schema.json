@@ -11,10 +11,20 @@
     "birthday",
     "costs"
   ],
+  "talents": ["all", "query", "costs"],
+  "constellations": ["all"],
+  "outfits": ["all", "query", "characters"],
+
   "weapons": ["all", "query", "weapontype", "rarity", "substat", "costs"],
-  "artifacts": ["all", "query", "rarity"],
-  "weaponmaterialtypes": ["day", "region", "domainofforgery"],
-  "talentmaterialtypes": ["day", "region", "domainofmastery"],
+
+  "foods": [
+    "all",
+    "rarity",
+    "foodtype",
+    "foodfilter",
+    "foodcategory",
+    "ingredients"
+  ],
   "materials": [
     "all",
     "query",
@@ -24,6 +34,11 @@
     "dropdomain",
     "daysofweek"
   ],
+
+  "weaponmaterialtypes": ["day", "region", "domainofforgery"],
+  "talentmaterialtypes": ["day", "region", "domainofmastery"],
+
+  "artifacts": ["all", "query", "rarity"],
   "domains": [
     "all",
     "query",
@@ -32,7 +47,20 @@
     "domaintype",
     "recommendedelements",
     "daysofweek",
+    "rewardpreview",
     "monsterlist"
   ],
-  "enemies": ["all", "query", "type", "category"]
+  "enemies": ["all", "query", "type", "category"],
+
+  "rarity": ["all"],
+  "elements": ["all"],
+
+  "achievements": ["all", "query"],
+  "achievementgroups": ["all", "query"],
+
+  "windgliders": ["all", "query", "rarity"],
+  "animals": ["all", "query", "category", "counttype"],
+  "namecards": ["all"],
+  "geographies": ["all", "query", "region"],
+  "adventureranks": ["all", "query", "reward"]
 }
