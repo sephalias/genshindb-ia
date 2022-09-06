@@ -42,7 +42,7 @@
               class="form-group-btn btn-primary btn-small"
               @click="getData()"
             >
-              Go
+              <Search />
             </button>
           </div>
           <div class="u-flex m-1" v-if="suggestion">
@@ -73,6 +73,7 @@
 import getUrl from "@/assets/js/api.js";
 import axios from "axios";
 import { defineAsyncComponent } from "vue";
+import { Search } from "lucide-vue-next";
 axios.defaults.headers.get["content-type"] = "application/json";
 
 import schema from "@/assets/js/schema.json";
@@ -89,6 +90,7 @@ export default {
     Options: defineAsyncComponent(() =>
       import("@/components/home/OptionsSection.vue")
     ),
+    Search,
   },
   data() {
     return {
