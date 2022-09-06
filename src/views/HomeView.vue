@@ -60,9 +60,9 @@
           </div>
         </div>
         <Options @options="getOptions" />
+        <Code :code="code" />
       </div>
       <div class="col-md-6 col-sm-12" id="data">
-        <Code :code="code" />
         <JsonView :data="data" :isLoading="dataLoad" />
       </div>
     </div>
