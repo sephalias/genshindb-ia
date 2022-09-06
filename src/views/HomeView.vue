@@ -129,7 +129,6 @@ export default {
     getData() {
       this.dataLoad = true;
       let url = getUrl(this.folder, this.query, this.options);
-      console.log(url);
       axios
         .get(url)
         .then((response) => (this.data = response.data))
