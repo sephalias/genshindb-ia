@@ -172,6 +172,14 @@ header {
 div.card {
   background-color: var(--cirrus-bg-secondary);
 }
+
+:root {
+  --scrollbar-bg: #fcfdfd;
+  --scrollbar-color: #c5c1b9;
+  --scrollbar-corner-bg: #b7b7b7;
+  --scrollbar-thumb-bg: #dddddd;
+}
+
 :root.dark {
   -webkit-font-smoothing: antialiased;
 
