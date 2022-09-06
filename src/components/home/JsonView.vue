@@ -1,27 +1,32 @@
 <template>
-  <JsonViewSkeleton v-if="isLoading" />
-  <div id="jsonView" class="card m-1" v-else>
-    <div class="form-ext-control mx-1 u-pull-right">
-      <label class="form-ext-toggle__label"
-        ><span>Results</span>
-        <div class="form-ext-toggle ml-1">
-          <input
-            name="toggleCheckbox"
-            type="checkbox"
-            class="form-ext-input"
-            v-model="showResults"
-          />
-          <div class="form-ext-toggle__toggler"><i></i></div>
-        </div>
-      </label>
+  <div class="card m-1 p-2">
+    <div class="u-flex u-justify-space-between mb-1">
+      <p class="title m-0">Result Data</p>
+      <div class="form-ext-control mx-1 u-pull-right" v-if="!isLoading">
+        <label class="form-ext-toggle__label"
+          ><span>Results</span>
+          <div class="form-ext-toggle ml-1">
+            <input
+              name="toggleCheckbox"
+              type="checkbox"
+              class="form-ext-input"
+              v-model="showResults"
+            />
+            <div class="form-ext-toggle__toggler"><i></i></div>
+          </div>
+        </label>
+      </div>
     </div>
-    <VueJsonPretty
-      class="p-1"
-      :data="dataFiltered"
-      :deep="2"
-      :showLength="true"
-    >
-    </VueJsonPretty>
+    <JsonViewSkeleton v-if="isLoading" />
+    <div id="jsonView" v-else>
+      <VueJsonPretty
+        class="p-1"
+        :data="dataFiltered"
+        :deep="2"
+        :showLength="true"
+      >
+      </VueJsonPretty>
+    </div>
   </div>
 </template>
 
