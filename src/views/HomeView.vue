@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import getUrl from "@/assets/js/api.js";
+import { getUrl } from "@/assets/js/api.js";
 import axios from "axios";
 import { defineAsyncComponent } from "vue";
 import { Search } from "lucide-vue-next";

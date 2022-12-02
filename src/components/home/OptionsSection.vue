@@ -62,10 +62,11 @@
             Query Languages:
           </label>
           <select
+            v-model="qlangselect"
             id="selectQueryLanguages"
             class="select input-small"
             placeholder="Choose one"
-            @change="addQueryLanguage($event)"
+            @change="addQueryLanguage()"
           >
             <option :value="null">-- Select --</option>
             <option
@@ -105,7 +106,7 @@
 import { defineAsyncComponent } from "vue";
 import axios from "axios";
 
-import getUrl from "@/assets/js/api.js";
+import { getUrl, getDefaultOptions, getLanguages } from "@/assets/js/api.js";
 
 export default {
   components: {
@@ -116,21 +117,14 @@ export default {
   data() {
     return {
       isLoading: Boolean,
-      options: {
-        dumpResult: false,
-        matchAltNames: false,
-        matchAliases: false,
-        matchCategories: true,
-        verboseCategories: false,
-        resultLanguage: "English",
-        queryLanguages: ["English"],
-      },
-      languages: null,
+      options: getDefaultOptions(),
+      qlangselect: null,
+      languages: getLanguages(),
       optionHover: null,
     };
   },
   mounted() {
-    this.getLanguages();
+    this.isLoading = false;
   },
   watch: {
     options: {
@@ -142,31 +136,20 @@ export default {
     },
   },
   methods: {
-    getLanguages() {
-      this.isLoading = true;
-      axios
-        .get(getUrl("languages"))
-        .then((response) => (this.languages = response.data))
-        .catch((error) => {
-          console.log(error);
-          this.isLoading = false;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
-    },
-
-    addQueryLanguage(event) {
-      let language = event.target.value;
-      if (!(language == "-- Select --")) {
-        if (!this.options.queryLanguages.includes(language)) {
-          this.options.queryLanguages.push(language);
+    addQueryLanguage() {
+      if (this.qlangselect !== null) {
+        if (!this.options.queryLanguages.includes(this.qlangselect)) {
+          this.options.queryLanguages.push(this.qlangselect);
         }
       }
     },
     removeQueryLanguage(language) {
       if (this.options.queryLanguages.includes(language)) {
         this.options.queryLanguages = this.options.queryLanguages.filter(l => l !== language);
+        if (this.options.queryLanguages.length === 0) {
+          this.options.queryLanguages = getDefaultOptions().queryLanguages;
+          this.qlangselect = null;
+        }
       }
     },
   },
