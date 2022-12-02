@@ -166,7 +166,7 @@ export default {
     },
     removeQueryLanguage(language) {
       if (this.options.queryLanguages.includes(language)) {
-        this.options.queryLanguages.pop(language);
+        this.options.queryLanguages = this.options.queryLanguages.filter(l => l !== language);
       }
     },
   },
