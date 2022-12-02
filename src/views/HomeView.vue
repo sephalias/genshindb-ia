@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import { getUrl } from "@/assets/js/api.js";
+import { getUrl, getDefaultOptions } from "@/assets/js/api.js";
 import axios from "axios";
 import { defineAsyncComponent } from "vue";
 import { Search } from "lucide-vue-next";
@@ -142,34 +142,36 @@ export default {
         });
     },
     generateURL() {
+      const defaultOptions = getDefaultOptions();
       let options = Object.entries(this.options).filter(
         ([key, value]) =>
-          key &&
-          value &&
-          !(
-            (key == "resultLanguage" && value == "English") ||
-            (key == "queryLanguages" && value == "English")
-          )
+          (!Array.isArray(value) && value !== defaultOptions[key])
+            ||
+          (Array.isArray(value) && JSON.stringify(value.sort()) !== JSON.stringify(defaultOptions[key].sort()))
       );
       let url = getUrl(this.folder, this.query);
-      options.forEach((option) => {
-        url += `&${option[0]}=${option[1]}`;
-      });
+      if (Object.keys(options).length !== 0) {
+        options.forEach((option) => {
+          url += `&${option[0]}=${option[1]}`;
+        });
+      }
       this.link = url;
     },
     generateCode() {
+      const defaultOptions = getDefaultOptions();
       let options = Object.entries(this.options).filter(
         ([key, value]) =>
-          key &&
-          value &&
-          !(
-            (key == "resultLanguage" && value == "English") ||
-            (key == "queryLanguages" && value == "English")
-          )
+          (!Array.isArray(value) && value !== defaultOptions[key])
+            ||
+          (Array.isArray(value) && JSON.stringify(value.sort()) !== JSON.stringify(defaultOptions[key].sort()))
       );
-      this.code = `genshinDb.${this.folder}("${this.query}", ${JSON.stringify(
-        Object.fromEntries(options)
-      )});`;
+      if (Object.keys(options).length === 0) {
+        this.code = `genshinDb.${this.folder}("${this.query}");`;
+      } else {
+        this.code = `genshinDb.${this.folder}("${this.query}", ${JSON.stringify(
+          Object.fromEntries(options)
+        )});`;
+      }
     },
     updateControls() {
       this.suggestion = this.suggestions[this.category];
