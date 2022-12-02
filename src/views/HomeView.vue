@@ -169,7 +169,7 @@ export default {
       );
       this.code = `genshinDb.${this.folder}("${this.query}", ${JSON.stringify(
         Object.fromEntries(options)
-      )}");`;
+      )});`;
     },
     updateControls() {
       this.suggestion = this.suggestions[this.category];
