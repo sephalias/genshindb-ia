@@ -64,6 +64,20 @@ watch(
   }
 );
 
+watch(
+  () => settingsStore.themeAuto,
+  (n) => {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      vjsTreeNodeBackgroundColor.value = "#e6f7ff29";
+    } else {
+      vjsTreeNodeBackgroundColor.value = "#e6f7ff";
+    }
+  }
+);
+
 function previewImage(url: string) {
   showImagePreviewModal.value = true;
   isImageLoading.value = true;
