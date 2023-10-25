@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { getImageUrl } from "@/scripts/utils";
+import { GitBranch, Link, LogoGithub, SendOutline } from "@vicons/ionicons5";
 import axios from "axios";
 import { useMessage, type FormInst, type FormItemRule } from "naive-ui";
-import { onMounted, ref } from "vue";
-import { GitBranch, Link, LogoGithub, SendOutline } from "@vicons/ionicons5";
+import { ref } from "vue";
 
 const message = useMessage();
 

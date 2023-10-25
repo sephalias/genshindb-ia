@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
 import themes from "@/assets/json/theme.json";
-import { Warning, ColorPalette } from "@vicons/ionicons5";
-import { darkTheme, useNotification, type GlobalTheme } from "naive-ui";
 import { useSettingsStore } from "@/stores/settings";
+import { ColorPalette, Warning } from "@vicons/ionicons5";
+import { useNotification } from "naive-ui";
+import { onMounted, ref, watch } from "vue";
 
 const settings = useSettingsStore();
 const notification = useNotification();

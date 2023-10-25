@@ -1,22 +1,14 @@
 <script setup lang="ts">
-import { getDefaultOptions, getUrl } from "@/scripts/api";
-import { getImageUrl } from "@/scripts/utils";
-import { ChevronDownOutline } from "@vicons/ionicons5";
-import axios from "axios";
-import {
-  computed,
-  defineAsyncComponent,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-} from "vue";
-import { useOptionsStore } from "@/stores/options";
-
+import icons from "@/assets/json/icons.json";
 import schemaJson from "@/assets/json/schema.json";
 import suggestions from "@/assets/json/suggestions.json";
-import icons from "@/assets/json/icons.json";
+import { getDefaultOptions, getUrl } from "@/scripts/api";
+import { getImageUrl } from "@/scripts/utils";
+import { useOptionsStore } from "@/stores/options";
+import { ChevronDownOutline } from "@vicons/ionicons5";
+import axios from "axios";
 import { useNotification } from "naive-ui";
+import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 
 axios.defaults.headers.get["content-type"] = "application/json";
 

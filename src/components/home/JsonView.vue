@@ -1,15 +1,9 @@
 <script setup lang="ts">
+import { getImageUrl } from "@/scripts/utils";
 import { useOptionsStore } from "@/stores/options";
 import { useSettingsStore } from "@/stores/settings";
 import { ImageOutline, OpenOutline } from "@vicons/ionicons5";
-import {
-  computed,
-  defineAsyncComponent,
-  onMounted,
-  onUpdated,
-  ref,
-  watch,
-} from "vue";
+import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 

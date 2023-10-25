@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Moon, Sunny, ColorPaletteOutline } from "@vicons/ionicons5";
+import { ColorPaletteOutline, Moon, Sunny } from "@vicons/ionicons5";
 import hljs from "highlight.js/lib/core";
 import javascript from "highlight.js/lib/languages/javascript";
 import json from "highlight.js/lib/languages/json";
-import type { GlobalTheme, MenuOption } from "naive-ui";
+import type { MenuOption } from "naive-ui";
 import { NSwitch, darkTheme } from "naive-ui";
-import { computed, h, onMounted, ref, watch } from "vue";
+import { computed, h, onMounted, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import { useSettingsStore } from "./stores/settings";
 
