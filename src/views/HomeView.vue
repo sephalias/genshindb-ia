@@ -1,214 +1,217 @@
+<script setup lang="ts">
+import { getDefaultOptions, getUrl } from "@/scripts/api";
+import { ChevronDownOutline } from "@vicons/ionicons5";
+import axios from "axios";
+import {
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from "vue";
+import { useOptionsStore } from "@/stores/options";
+
+import schemaJson from "@/assets/json/schema.json";
+import suggestions from "@/assets/json/suggestions.json";
+import icons from "@/assets/json/icons.json";
+import { useNotification } from "naive-ui";
+
+axios.defaults.headers.get["content-type"] = "application/json";
+
+const JsonView = defineAsyncComponent(
+  () => import("@/components/home/JsonView.vue")
+);
+const CodeSection = defineAsyncComponent(
+  () => import("@/components/home/CodeSection.vue")
+);
+const ApiSection = defineAsyncComponent(
+  () => import("@/components/home/APISection.vue")
+);
+
+const OptionsSection = defineAsyncComponent(
+  () => import("@/components/home/OptionsSection.vue")
+);
+
+const optionsStore = useOptionsStore().$state;
+const notification = useNotification();
+
+const folder = ref("");
+const category = ref("");
+const query = ref("");
+
+const suggestionsShown = ref({});
+
+const code = ref("");
+const link = ref<string>("");
+const isLoading = ref(false);
+const queryDisabled = ref(false);
+
+const response = ref({});
+
+onMounted(() => {
+  if (!folder.value) folder.value = Object.keys(schemaJson)[0];
+  if (!category.value && folder.value)
+    category.value = (schemaJson as any)[folder.value][0];
+});
+
+const folderOptions = computed({
+  get() {
+    let options: any = [];
+    Object.keys(schemaJson).forEach((element: string) => {
+      options.push({ value: element, label: element, disabled: false });
+    });
+    return options;
+  },
+  set() {},
+});
+
+const categoryOptions = computed({
+  get() {
+    let options: any = [];
+    (schemaJson as any)[folder.value]?.forEach((value: any) => {
+      options.push({ value: value, label: value, disabled: false });
+    });
+    return options;
+  },
+  set() {},
+});
+
+watch(folder, (newFolder) => {
+  category.value = (categoryOptions.value as any)[0].value;
+});
+
+watch(category, (newCategory) => {
+  suggestionsShown.value = (suggestions as any)[category.value];
+  query.value = category.value === "all" ? "names" : "";
+  queryDisabled.value = category.value === "all" ? true : false;
+});
+
+function getData() {
+  link.value = generateURL();
+  isLoading.value = true;
+  response.value = {};
+  axios
+    .get(link.value)
+    .then((resp) => {
+      response.value = { ...resp };
+    })
+    .catch(() => {
+      isLoading.value = false;
+      notification.create({
+        title: "Error",
+        content: "Failed to retrieve data.",
+        duration: 2500,
+        type: "error",
+      });
+    })
+    .finally(() => {
+      isLoading.value = false;
+      generateURL();
+      generateCode();
+    });
+}
+
+function generateURL() {
+  const defaultOptions = getDefaultOptions();
+  let codeOptions = Object.entries(optionsStore).filter(
+    ([key, value]) =>
+      (!Array.isArray(value) && value !== defaultOptions[key]) ||
+      (Array.isArray(value) &&
+        JSON.stringify(value.sort()) !==
+          JSON.stringify(defaultOptions[key].sort()))
+  );
+  return getUrl(folder.value, query.value, Object.fromEntries(codeOptions));
+}
+
+function generateCode() {
+  const defaultOptions = getDefaultOptions();
+  let codeOptions = Object.entries(optionsStore).filter(
+    ([key, value]) =>
+      (!Array.isArray(value) && value !== defaultOptions[key]) ||
+      (Array.isArray(value) &&
+        JSON.stringify(value.sort()) !==
+          JSON.stringify(defaultOptions[key].sort()))
+  );
+
+  if (Object.keys(codeOptions).length === 0) {
+    code.value = `genshinDb.${folder.value}("${
+      query.value ? query.value : "names"
+    }");`;
+  } else {
+    code.value = `genshinDb.${folder.value}("${
+      query.value ? query.value : "names"
+    }", ${JSON.stringify(Object.fromEntries(codeOptions))});`;
+  }
+}
+</script>
+
 <template>
-  <div id="home">
-    <div class="row">
-      <div class="col-md-6 col-sm-12">
-        <div class="card m-1" id="query">
-          <div class="form-group m-0">
-            <select
-              class="form-group-input input-small"
-              placeholder="Choose one"
-              v-model="folder"
-              @change="onFolderChange($event)"
+  <n-grid x-gap="12" cols="2 xs:1 s:1 m:2 l:2 xl:2 2xl:2" responsive="screen">
+    <n-gi>
+      <n-space vertical>
+        <n-card title="Query">
+          <n-space inline>
+            <n-select
+              v-model:value="folder"
+              filterable
+              placeholder="Select a folder"
+              :options="folderOptions"
             >
-              <option
-                :value="index"
-                v-for="(folder, index) in schema"
-                :key="index"
-              >
-                {{ index }}
-              </option>
-            </select>
-            <select
-              class="form-group-input input-small"
-              placeholder="Choose one"
-              v-model="category"
-              @change="onCategoryChange($event)"
-            >
-              <option
-                :value="category"
-                v-for="category in schema[folder]"
-                :key="category"
-              >
-                {{ category }}
-              </option>
-            </select>
-            <input
-              class="form-group-input input-small w-100"
-              v-model="query"
+            </n-select>
+            <n-select
+              v-model:value="category"
+              filterable
+              :consistent-menu-width="true"
+              placeholder="Select a
+            category"
+              :options="categoryOptions"
+            />
+            <n-input
+              v-model:value="query"
+              placeholder="Enter query"
               :disabled="queryDisabled"
               @keyup.enter="getData()"
             />
-            <button
-              class="form-group-btn btn-primary btn-small"
-              @click="getData()"
-            >
-              <Search />
-            </button>
-          </div>
-          <div class="u-flex m-1" v-if="suggestion">
-            <label class="mr-1"> Suggestions: </label>
-            <div class="tag-container">
-              <div
-                class="tag tag--primary"
-                v-for="item in suggestion"
-                :key="item"
-                @click="setSuggestionToQuery(item)"
+            <n-button @click="getData()" type="primary">
+              <template #icon>
+                <n-icon>
+                  <ChevronDownOutline />
+                </n-icon>
+              </template>
+              Get
+            </n-button>
+          </n-space>
+          <n-space vertical v-if="suggestionsShown">
+            <h4 style="margin-block-end: 0.1em">Suggestions</h4>
+            <n-space inline>
+              <n-tag
+                checkable
+                round
+                bordered
+                :checked="query == suggestion"
+                v-for="suggestion in suggestionsShown"
+                @click="query = suggestion"
               >
-                {{ item }}
-              </div>
-            </div>
-          </div>
-        </div>
-        <Options @options="getOptions" />
-        <Code :code="code" />
-        <API :link="link" />
-      </div>
-      <div class="col-md-6 col-sm-12" id="data">
-        <JsonView :data="data" :isLoading="dataLoad" />
-      </div>
-    </div>
-  </div>
+                {{ suggestion }}
+                <template #icon v-if="icons[suggestion]">
+                  <n-avatar :src="icons[suggestion]" />
+                </template>
+              </n-tag>
+            </n-space>
+          </n-space>
+          <OptionsSection />
+        </n-card>
+        <CodeSection :code="code" />
+        <ApiSection :link="link" />
+      </n-space>
+    </n-gi>
+    <n-gi>
+      <JsonView :response="response" :isLoading="isLoading" />
+    </n-gi>
+  </n-grid>
 </template>
 
-<script>
-import { getUrl, getDefaultOptions } from "@/assets/js/api.js";
-import axios from "axios";
-import { defineAsyncComponent } from "vue";
-import { Search } from "lucide-vue-next";
-axios.defaults.headers.get["content-type"] = "application/json";
-
-import schema from "@/assets/js/schema.json";
-import suggestions from "@/assets/js/suggestions.json";
-
-export default {
-  components: {
-    JsonView: defineAsyncComponent(() =>
-      import("@/components/home/JsonView.vue")
-    ),
-    Code: defineAsyncComponent(() =>
-      import("@/components/home/CodeSection.vue")
-    ),
-    API: defineAsyncComponent(() => import("@/components/home/APISection.vue")),
-    Options: defineAsyncComponent(() =>
-      import("@/components/home/OptionsSection.vue")
-    ),
-    Search,
-  },
-  data() {
-    return {
-      data: null,
-      query: "",
-      options: null,
-      folder: null,
-      category: null,
-      suggestion: null,
-      code: null,
-      link: null,
-      dataLoad: false,
-      queryDisabled: false,
-    };
-  },
-  computed: {
-    schema() {
-      return schema;
-    },
-    suggestions() {
-      return suggestions;
-    },
-  },
-  mounted() {
-    if (!this.folder) this.folder = Object.keys(this.schema)[0];
-    if (!this.category && this.folder)
-      this.category = this.schema[this.folder][0];
-    if (!this.suggestion && this.category) {
-      this.suggestion = this.suggestions[this.category];
-    }
-    this.updateControls();
-  },
-  methods: {
-    getData() {
-      this.dataLoad = true;
-      let url = getUrl(this.folder, this.query, this.options);
-      axios
-        .get(url)
-        .then((response) => (this.data = response.data))
-        .catch(() => {
-          this.dataLoad = false;
-        })
-        .finally(() => {
-          this.dataLoad = false;
-          this.generateURL();
-          this.generateCode();
-        });
-    },
-    generateURL() {
-      const defaultOptions = getDefaultOptions();
-      let options = Object.entries(this.options).filter(
-        ([key, value]) =>
-          (!Array.isArray(value) && value !== defaultOptions[key])
-            ||
-          (Array.isArray(value) && JSON.stringify(value.sort()) !== JSON.stringify(defaultOptions[key].sort()))
-      );
-      let url = getUrl(this.folder, this.query);
-      if (Object.keys(options).length !== 0) {
-        options.forEach((option) => {
-          url += `&${option[0]}=${option[1]}`;
-        });
-      }
-      this.link = url;
-    },
-    generateCode() {
-      const defaultOptions = getDefaultOptions();
-      let options = Object.entries(this.options).filter(
-        ([key, value]) =>
-          (!Array.isArray(value) && value !== defaultOptions[key])
-            ||
-          (Array.isArray(value) && JSON.stringify(value.sort()) !== JSON.stringify(defaultOptions[key].sort()))
-      );
-      if (Object.keys(options).length === 0) {
-        this.code = `genshinDb.${this.folder}("${this.query}");`;
-      } else {
-        this.code = `genshinDb.${this.folder}("${this.query}", ${JSON.stringify(
-          Object.fromEntries(options)
-        )});`;
-      }
-    },
-    updateControls() {
-      this.suggestion = this.suggestions[this.category];
-      if (this.options) {
-        this.options.matchCategories = true;
-      }
-      if (this.suggestion) this.query = this.suggestion[0];
-      else this.query = "";
-
-      if (this.category == "all") {
-        this.queryDisabled = true;
-        this.suggestion = null;
-      } else if (this.category == "query") {
-        if (this.options) {
-          this.options.matchCategories = false;
-        }
-        this.queryDisabled = false;
-      } else {
-        this.queryDisabled = false;
-      }
-    },
-    onFolderChange(event) {
-      this.category = this.schema[event.target.value][0];
-      this.updateControls();
-    },
-    onCategoryChange(event) {
-      this.suggestion = this.suggestions[event.target.value];
-      this.updateControls();
-    },
-    setSuggestionToQuery(suggestion) {
-      this.query = suggestion;
-    },
-    getOptions(options) {
-      this.options = options;
-    },
-  },
-};
-</script>
-
-<style></style>
+<style>
+/* TODO: flex-wrap:none on 1366 */
+</style>

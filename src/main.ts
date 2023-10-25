@@ -1,11 +1,11 @@
-import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { createApp } from "vue";
 
 import App from "./App.vue";
 import router from "./router";
 
-import "vfonts/Lato.css"; // General Font
 import "vfonts/FiraCode.css"; // Monospace Font
+import "vfonts/Lato.css"; // General Font
 
 const app = createApp(App);
 

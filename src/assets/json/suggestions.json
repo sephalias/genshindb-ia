@@ -1,5 +1,4 @@
 {
-  "all": ["names"],
   "day": [
     "Sunday",
     "Monday",
@@ -24,7 +23,7 @@
     "Talent Level-Up Material"
   ],
   "weapontype": ["Bow", "Claymore", "Catalyst", "Polearm", "Sword"],
-  "rarity": [5, 4, 3, 2, 1],
+  "rarity": ["5", "4", "3", "2", "1"],
   "recommendedelements": [
     "Anemo",
     "Cryo",

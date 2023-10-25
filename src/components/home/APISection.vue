@@ -1,36 +1,34 @@
-<template>
-  <div id="code" class="card m-1" v-if="link">
-    <div class="content p-2 mb-0">
-      <div class="u-flex u-justify-space-between">
-        <p class="title m-0">API Link</p>
-        <button
-          class="btn btn-primary btn--xs mb-1 mr-1"
-          @click="copyToClipboard(link)"
-        >
-          <div class="u-flex">
-            <span class="mr-1">Copy</span><ClipboardCopy size="21px" />
-          </div>
-        </button>
-      </div>
-      <pre><code class="p-1">{{ link }}</code></pre>
-    </div>
-  </div>
-</template>
+<script setup lang="ts">
+import { useNotification } from "naive-ui";
 
-<script>
-import { ClipboardCopy } from "lucide-vue-next";
+interface APISectionInterface {
+  link: string;
+}
 
-export default {
-  props: {
-    link: String,
-  },
-  components: {
-    ClipboardCopy,
-  },
-  methods: {
-    copyToClipboard(text) {
-      navigator.clipboard.writeText(text);
-    },
-  },
-};
+const props = defineProps<APISectionInterface>();
+
+const notification = useNotification();
+
+function copyToClipboard(text: string) {
+  navigator.clipboard.writeText(text);
+  notification.create({
+    title: "Success",
+    content: "API Link copied to clipboard.",
+    duration: 2500,
+    type: "success",
+  });
+}
 </script>
+
+<template>
+  <n-card title="API Link" size="small" v-if="link">
+    <template #header-extra>
+      <n-button @click="copyToClipboard(props.link)">Copy</n-button>
+    </template>
+    <n-space>
+      <n-a style="text-decoration: none" :href="props.link" target="_blank">
+        {{ props.link }}
+      </n-a>
+    </n-space>
+  </n-card>
+</template>

@@ -1,30 +1,132 @@
+<script setup lang="ts">
+import { useOptionsStore } from "@/stores/options";
+import { useSettingsStore } from "@/stores/settings";
+import { ImageOutline, OpenOutline } from "@vicons/ionicons5";
+import {
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  onUpdated,
+  ref,
+  watch,
+} from "vue";
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
+
+const JsonViewSkeleton = defineAsyncComponent(
+  () => import("@/components/home/JsonViewSkeleton.vue")
+);
+
+const optionsStore = useOptionsStore().$state;
+const settingsStore = useSettingsStore();
+
+const showResults = ref(true);
+
+const isImageLoading = ref(false);
+const imageUrl = ref("");
+const showImagePreviewModal = ref(false);
+
+const vjsTreeNodeBackgroundColor = ref("");
+
+interface IJsonView {
+  response: any;
+  isLoading: Boolean;
+}
+
+const props = defineProps<IJsonView>();
+
+// TODO: Optimize
+// TODO: Hide show result if dumpResult is false
+const filteredData = computed({
+  get() {
+    let filtered_data = {};
+    if (optionsStore.dumpResult) {
+      if (showResults.value) filtered_data = props.response.data.result;
+      else filtered_data = props.response.data;
+    } else filtered_data = props.response.data;
+    return filtered_data;
+  },
+  set() {},
+});
+
+/*
+ * Fix for VuePrettyJson hover color on darkmode. On Mounted
+ */
+onMounted(() => {
+  settingsStore.theme === "dark"
+    ? (vjsTreeNodeBackgroundColor.value = "#e6f7ff29")
+    : (vjsTreeNodeBackgroundColor.value = "#e6f7ff");
+});
+
+/*
+ * Fix for VuePrettyJson hover color on darkmode. Listens to theme changes.
+ */
+watch(
+  () => settingsStore.theme,
+  (n) => {
+    n === "dark"
+      ? (vjsTreeNodeBackgroundColor.value = "#e6f7ff29")
+      : (vjsTreeNodeBackgroundColor.value = "#e6f7ff");
+  }
+);
+
+function previewImage(url: string) {
+  showImagePreviewModal.value = true;
+  isImageLoading.value = true;
+  imageUrl.value = url;
+}
+
+function onImageLoad() {
+  isImageLoading.value = false;
+}
+
+function onModalClose() {
+  isImageLoading.value = false;
+  imageUrl.value = "";
+}
+</script>
+
 <template>
-  <div class="card m-1 p-2">
-    <div class="u-flex u-justify-space-between mb-1">
-      <p class="title m-0">Result Data</p>
-      <div class="form-ext-control mx-1 u-pull-right" v-if="!isLoading">
-        <label class="form-ext-toggle__label"
-          ><span>Results</span>
-          <div class="form-ext-toggle ml-1">
-            <input
-              name="toggleCheckbox"
-              type="checkbox"
-              class="form-ext-input"
-              v-model="showResults"
-            />
-            <div class="form-ext-toggle__toggler"><i></i></div>
-          </div>
-        </label>
-      </div>
-    </div>
+  <n-card title="Response">
+    <template #header-extra v-if="!isLoading">
+      <n-space v-if="optionsStore.dumpResult">
+        Show Result
+        <n-switch v-model:value="showResults" />
+      </n-space>
+    </template>
     <JsonViewSkeleton v-if="isLoading" />
     <div id="jsonView" v-else>
+      <n-empty
+        description="Nothing to show."
+        v-if="props.response?.status !== 200 || filteredData === ''"
+      >
+      </n-empty>
       <VueJsonPretty
-        class="p-1"
-        :data="dataFiltered"
+        v-else
+        :on-brackets-click="
+          (collapsed = true) => console.log('updated', collapsed)
+        "
+        :data="filteredData"
         :deep="2"
         :showLength="true"
       >
+        <template #renderNodeKey="{ node, defaultKey }">
+          <template
+            v-if="
+              typeof node.content === 'string' &&
+              (node.content.startsWith('http://') ||
+                node.content.startsWith('https://')) &&
+              (node.content.endsWith('.png') || node.content.endsWith('.jpg'))
+            "
+          >
+            <span style="text-wrap: nowrap">
+              <n-icon :component="ImageOutline"></n-icon>&nbsp;{{ node.key }}
+            </span>
+          </template>
+          <template v-else>
+            <span>{{ defaultKey }} </span>
+          </template>
+        </template>
         <template #renderNodeValue="{ node, defaultValue }">
           <template
             v-if="
@@ -38,134 +140,69 @@
               @click="previewImage(node.content)"
               style="cursor: pointer"
               title="Click to preview image."
-              >{{ node.content }}</a
             >
+              <span>&nbsp;{{ node.content }}</span>
+            </a>
           </template>
-          <template v-else>{{ defaultValue }}</template>
+          <template v-else>
+            <span>&nbsp;{{ defaultValue }} </span>
+          </template>
         </template>
       </VueJsonPretty>
     </div>
-  </div>
-  <div
-    class="modal modal-animated--zoom-in shown"
-    id="image-preview-modal"
-    style="min-width: 200px; max-height: 100%; max-width: 100%"
-  >
-    <a class="modal-overlay close-btn" @click="closeModal()"></a>
-    <div class="modal-content" role="document" style="max-height: 100%">
-      <div class="modal-header">
-        <a
-          @click="closeModal()"
-          style="cursor: pointer"
-          class="u-pull-right"
-          aria-label="Close"
-          ><span class="icon"
-            ><svg
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="fas"
-              data-icon="times"
-              class="svg-inline--fa fa-times fa-w-11 fa-wrapper"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 352 512"
-            >
-              <path
-                fill="currentColor"
-                d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-              ></path></svg></span
-        ></a>
-        <div class="modal-title">Image Preview</div>
-      </div>
-      <div class="modal-body">
-        <template v-if="isImageLoading">
-          <progress class="progress progress--link progress--md" max="100">
-            15%
-          </progress>
-        </template>
+    <template
+      #footer
+      v-if="!(props.response?.status !== 200 || filteredData === '')"
+    >
+      Status: {{ response?.status }} {{ response?.statusText }} &nbsp; Date:
+      {{ response?.headers?.date }}
+    </template>
+  </n-card>
 
-        <img
-          class="img-cover"
-          :src="this.imageUrl"
-          onerror="this.onerror=null;this.src='../src/assets/logo.png'"
-          :onload="onImageLoad()"
-        />
-      </div>
-    </div>
-  </div>
+  <n-modal
+    v-model:show="showImagePreviewModal"
+    class="custom-card"
+    preset="card"
+    :style="{ width: '600px' }"
+    :title="imageUrl.split('/')[imageUrl.split('/').length - 1]"
+    :bordered="true"
+    :on-after-leave="onModalClose"
+  >
+    <template #header-extra> </template>
+    <n-space justify="center" align="center">
+      <n-image
+        style="max-width: 300"
+        width="200"
+        :src="imageUrl"
+        fallback-src="../src/assets/no-image.png"
+        onload="onImageLoad"
+        :on-load="onImageLoad"
+        show-toolbar-tooltip
+        v-show="!isImageLoading"
+      />
+      <n-spin size="large" v-show="isImageLoading" />
+    </n-space>
+
+    <template #footer>
+      <n-space>
+        <n-a :href="imageUrl">
+          {{ imageUrl.split("/")[imageUrl.split("/").length - 1] }}
+          &nbsp;
+          <n-icon :component="OpenOutline"></n-icon>
+        </n-a>
+      </n-space>
+    </template>
+  </n-modal>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
-import VueJsonPretty from "vue-json-pretty";
-import "vue-json-pretty/lib/styles.css";
-export default {
-  components: {
-    VueJsonPretty,
-    JsonViewSkeleton: defineAsyncComponent(() =>
-      import("@/components/home/JsonViewSkeleton.vue")
-    ),
-  },
-  data() {
-    return { showResults: true, imageUrl: null, isImageLoading: true };
-  },
-  props: {
-    data: JSON,
-    isLoading: Boolean,
-  },
-  computed: {
-    dataFiltered() {
-      let data = this.data;
-      try {
-        if (data["options"]["dumpResult"])
-          if (this.showResults) data = data.result;
-      } catch {
-        if (this.showResults) return data;
-        else data = null;
-      }
-      return data;
-    },
-  },
-  methods: {
-    previewImage(url) {
-      this.isImageLoading = true;
-      this.imageUrl = url;
-      let modal = document.querySelector("#image-preview-modal");
-      modal.classList.add("shown");
-      modal.style.display = "flex";
-    },
-    onImageLoad() {
-      this.isImageLoading = false;
-    },
-    closeModal() {
-      let modal = document.querySelector("#image-preview-modal");
-      modal.classList.remove("shown");
-      modal.style.display = "none";
-    },
-  },
-};
-</script>
-
-<style scoped>
-.modal-body {
-  max-height: 80vh !important;
-  overflow-y: scroll;
-}
-.modal.modal-animated--zoom-in,
-.modal.modal-animated--zoom-out {
-  transition: 0.3s !important;
-  opacity: 1 !important;
-  display: none;
+<style>
+/* Fix for VuePrettyJson colon is breaking down. */
+.vjs-key {
+  text-wrap: nowrap;
 }
 
-.modal.shown .modal-overlay,
-.modal:target .modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: block;
-  background-color: rgba(54, 54, 54, 0.5);
+/* Fix for VuePrettyJson hover color on darkmode.  */
+.vjs-tree-node:hover {
+  background-color: v-bind("vjsTreeNodeBackgroundColor");
 }
 </style>

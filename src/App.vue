@@ -1,230 +1,255 @@
-<template>
-  <div id="body">
-    <header id="navigation" class="header u-unselectable header-animated">
-      <div class="header-brand u-flex u-justify-space-between">
-        <div class="nav-item no-hover">
-          <a href="/"
-            ><h6 class="title">
-              GenshinDB <span class="font-thin">Interactive</span>
-            </h6></a
-          >
-        </div>
-        <div class="u-flex">
-          <div
-            class="nav-item nav-btn"
-            id="header-btn"
-            @click="toggleNav($event)"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <div class="nav-item u-none-md">
-            <a @click="toggleMode">
-              <Sun v-if="this.appMode == 'dark'" />
-              <Moon v-else />
-            </a>
-          </div>
-        </div>
-      </div>
+<script setup lang="ts">
+import { Moon, Sunny, ColorPaletteOutline } from "@vicons/ionicons5";
+import hljs from "highlight.js/lib/core";
+import javascript from "highlight.js/lib/languages/javascript";
+import json from "highlight.js/lib/languages/json";
+import type { GlobalTheme, MenuOption } from "naive-ui";
+import { NSwitch, darkTheme } from "naive-ui";
+import { computed, h, onMounted, ref, watch } from "vue";
+import { RouterLink, useRoute } from "vue-router";
+import { useSettingsStore } from "./stores/settings";
 
-      <div class="header-nav" id="header-menu">
-        <div class="nav-right">
-          <router-link
-            :to="link.to"
-            v-slot="{ navigate, isActive }"
-            custom
-            v-for="link in links"
-            :key="link"
-          >
-            <div
-              class="nav-item"
-              :class="[isActive && 'active']"
-              @click="navigate"
-            >
-              <a class="nav-dropdown-link">{{ link.name }}</a>
-            </div>
-          </router-link>
-        </div>
-      </div>
-      <div class="header-nav ml-5" id="header-menu-static">
-        <div class="nav-right" id="nav-right-static">
-          <a class="nav-item" @click="toggleMode">
-            <Sun v-if="this.appMode == 'dark'" />
-            <Moon v-else />
-          </a>
-        </div>
-      </div>
-    </header>
-    <main id="content" class="mx-2">
-      <router-view />
-    </main>
-  </div>
-</template>
+import themes from "@/assets/json/theme.json";
 
-<script>
-import { Moon, Sun } from "lucide-vue-next";
-export default {
-  name: "App",
-  components: {
-    Moon,
-    Sun,
-  },
-  data() {
-    return {
-      appMode: null,
-      links: {
-        home: {
-          to: "/",
-          name: "Home",
+hljs.registerLanguage("javascript", javascript);
+hljs.registerLanguage("json", json);
+
+const settings = useSettingsStore();
+
+const activeKey = ref();
+const router = useRoute();
+
+const menuOptions: MenuOption[] = [
+  {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            name: "home",
+          },
         },
-        about: {
-          to: "/about",
-          name: "About",
-        },
-      },
-    };
+        { default: () => "Home" }
+      ),
+    key: "home",
   },
-  mounted() {
-    const appMode = localStorage.getItem("appMode");
-    if (appMode) {
-      this.appMode = appMode;
-      appMode == "light"
-        ? (document.documentElement.className = "light")
-        : (document.documentElement.className = "dark");
+  {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            name: "settings",
+          },
+        },
+        { default: () => "Settings" }
+      ),
+    key: "settings",
+  },
+  {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            name: "about",
+          },
+        },
+        { default: () => "About" }
+      ),
+    key: "about",
+  },
+];
+
+onMounted(() => {
+  let appThemeMode = localStorage.getItem("appThemeMode");
+  let appThemeModeAuto = localStorage.getItem("isAppThemeModeAuto");
+  let themeColor = localStorage.getItem("appThemeColor");
+
+  if (!appThemeMode || !appThemeModeAuto || !themeColor) {
+    settings.setColor("green");
+    settings.applySystemTheme();
+  } else {
+    settings.theme = appThemeMode;
+    settings.themeAuto = appThemeModeAuto === "true" ? true : false;
+    settings.setColor(themeColor);
+  }
+
+  setTimeout(() => (activeKey.value = router.name), 2000);
+});
+
+const isDark = computed({
+  get() {
+    return settings.theme === "dark" ? true : false;
+  },
+  set(newValue) {
+    console.log("newvalue", newValue);
+    settings.theme === "dark"
+      ? settings.applyLightTheme()
+      : settings.applyDarkTheme();
+  },
+});
+
+const theme = computed(() => {
+  if (settings.themeAuto) {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      return darkTheme;
     } else {
-      if (
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches
-      ) {
-        this.appMode == "dark";
-        localStorage.setItem("appMode", "dark");
-        document.documentElement.className = "dark";
-      } else {
-        this.appMode == "light";
-        localStorage.setItem("appMode", "light");
-        document.documentElement.className = "light";
-      }
+      return null;
     }
+  } else {
+    return settings.theme == "dark" ? darkTheme : null;
+  }
+});
 
-    // TODO: Auto switch modes setting
-    // window
-    //   .matchMedia("(prefers-color-scheme: dark)")
-    //   .addEventListener("change", (event) => {
-    //     const newColorScheme = event.matches ? "dark" : "light";
-    //   });
-  },
-  methods: {
-    toggleNav(event) {
-      event.target.classList.toggle("active");
-      document.querySelector(".header-nav").classList.toggle("active");
+const themeOverrides = computed(() => {
+  return {
+    common: {
+      ...(themes as any)[settings.themeColor],
     },
-    toggleMode() {
-      if (this.appMode == "light") {
-        this.appMode = "dark";
-        localStorage.setItem("appMode", "dark");
-        document.documentElement.className = "dark";
-      } else {
-        this.appMode = "light";
-        localStorage.setItem("appMode", "light");
-        document.documentElement.className = "light";
-      }
+  };
+});
 
-      console.log("Mode: ", this.appMode);
-    },
-  },
-};
+function toggleTheme() {
+  if (settings.theme === "dark") isDark.value = false;
+  if (settings.theme === "light") isDark.value = true;
+}
+
+// FIXME: Mobile Navigation
+function toggleNav(event: {
+  target: { classList: { toggle: (arg0: string) => void } };
+}) {
+  event.target.classList.toggle("active");
+  document.querySelector(".header-nav")?.classList.toggle("active");
+}
 </script>
 
-<style lang="scss">
-div.header-nav#header-menu-static {
-  width: auto;
+<template>
+  <n-config-provider
+    :theme="theme"
+    :theme-overrides="themeOverrides"
+    :hljs="hljs"
+  >
+    <n-notification-provider placement="bottom">
+      <n-message-provider>
+        <n-layout id="main">
+          <n-layout-header
+            style="
+              height: 64px;
+              --side-padding: 32px;
+              grid-template-columns: calc(272px - var(--side-padding)) 1fr auto;
+            "
+            bordered
+            position="static"
+            class="nav"
+          >
+            <div class="n-text ui-logo">
+              <router-link
+                :to="{ name: 'home' }"
+                style="color: inherit; text-decoration: none"
+                @click="activeKey = 'home'"
+              >
+                <b>GenshinDB</b>
+                <span style="font-weight: lighter"> Interactive</span>
+              </router-link>
+            </div>
+
+            <div style="display: flex; align-items: center">
+              <n-menu
+                v-model:value="activeKey"
+                mode="horizontal"
+                :options="menuOptions"
+              />
+            </div>
+
+            <div class="nav-end">
+              <n-space style="align-items: center">
+                <n-button
+                  @click="
+                    settings.themeAuto
+                      ? settings.applyFixedTheme()
+                      : settings.applySystemTheme()
+                  "
+                  round
+                >
+                  <template #icon>
+                    <n-icon>
+                      <color-palette-outline />
+                    </n-icon>
+                  </template>
+                  {{ settings.themeAuto ? "Auto" : "Fixed" }}
+                </n-button>
+                <n-switch
+                  v-model:value="isDark"
+                  size="large"
+                  @update="toggleTheme"
+                  v-if="!settings.themeAuto"
+                >
+                  <template #checked-icon>
+                    <n-icon :component="Moon" />
+                  </template>
+                  <template #unchecked-icon>
+                    <n-icon :component="Sunny" />
+                  </template>
+                </n-switch>
+              </n-space>
+            </div>
+          </n-layout-header>
+          <n-layout-content content-style="padding: 32px;" id="main-content">
+            <router-view />
+          </n-layout-content>
+          <n-layout-footer
+            bordered
+            id="footer"
+            style="
+              margin-top: auto;
+              height: 50px;
+              padding-left: 30px;
+              padding-right: 30px;
+              padding-top: 15px;
+              padding-bottom: 15px;
+            "
+          >
+            <n-space justify="space-around">
+              &copy; 2021-{{ new Date().getFullYear() }} Sephalias
+            </n-space>
+          </n-layout-footer>
+        </n-layout>
+      </n-message-provider>
+    </n-notification-provider>
+  </n-config-provider>
+</template>
+
+<style>
+.nav {
+  align-items: center;
+  display: grid;
+  grid-template-rows: calc(var(--header-height) - 1px);
+  padding: 0 var(--side-padding);
+}
+
+.nav-end {
+  align-items: center;
+  display: flex;
+}
+.ui-logo {
+  cursor: pointer;
+  display: flex;
+  font-size: 18px;
 }
 
 body {
-  background-color: var(--cirrus-bg);
-}
-select {
-  background-color: var(--cirrus-form-group-bg) !important;
-  color: var(--cirrus-fg);
-  border: var(--cirrus-border);
+  min-height: 100vh;
 }
 
-input {
-  background-color: var(--cirrus-form-group-bg) !important;
-  color: var(--cirrus-fg);
-  border: var(--cirrus-border);
+#app .n-config-provider #main {
+  min-height: 100vh;
 }
 
-input:not([class*=" btn-"]):disabled:hover,
-input:not([class*="btn-"]):disabled,
-select:disabled,
-textarea:disabled {
-  background-color: var(--hr) !important;
-  color: var(--link-color);
-  border: var(--cirrus-border);
-}
-
-header {
-  color: var(--cirrus-fg) !important;
-}
-
-div.card {
-  background-color: var(--cirrus-bg-secondary);
-}
-
-:root {
-  --scrollbar-bg: #fcfdfd;
-  --scrollbar-color: #c5c1b9;
-  --scrollbar-corner-bg: #b7b7b7;
-  --scrollbar-thumb-bg: #dddddd;
-}
-
-:root.dark {
-  -webkit-font-smoothing: antialiased;
-
-  --cirrus-bg: rgb(26, 28, 29);
-  --cirrus-fg: rgba(255, 255, 255, 0.88);
-  --cirrus-form-group-bg: #181a1b;
-  --cirrus-bg-secondary: #181a1b;
-  --cirrus-border: 1px solid #393939 !important;
-  --text-normal: rgba(255, 255, 255, 0.88);
-  --text-title: white;
-  --text-subtitle: rgb(186, 181, 171);
-  --text-link: rgba(213, 210, 204, 0.6);
-  --title-link: #424c7d;
-  --header-link-color: rgba(201, 214, 253, 0.6) !important;
-  --link-color: rgba(201, 214, 253, 0.6) !important;
-  --hr: #4d4d4d;
-  --nav-bg: rgba(24, 26, 27, 0.6);
-  --code: rgb(63, 47, 5);
-  --cirrus-code-bg: var(--cirrus-bg-secondary) !important;
-  --cirrus-code-fg: var(--cirrus-fg) !important;
-  --code-text: #bcb7ad;
-  --border-bottom: #393939;
-
-  --scrollbar-bg: #1c1e1f;
-  --scrollbar-color: #c5c1b9;
-  --scrollbar-corner-bg: #181a1b;
-  --scrollbar-thumb-bg: #2a2c2e;
-
-  --pagination-hover: rgba(0, 0, 0, 0.07);
-  pre > code {
-    --cirrus-code-bg: var(--cirrus-bg-secondary) !important;
-    --cirrus-code-fg: var(--cirrus-fg) !important;
-  }
-}
-
-::-webkit-scrollbar {
-  background-color: var(--scrollbar-bg);
-  color: var(--scrollbar-color);
-}
-
-::-webkit-scrollbar-corner {
-  background-color: var(--scrollbar-corner-bg);
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb-bg);
+#main-content {
+  min-height: calc(100vh - 115px);
 }
 </style>

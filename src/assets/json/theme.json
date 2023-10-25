@@ -1,0 +1,86 @@
+{
+  "green": {
+    "primaryColor": "#63e2b7",
+    "primaryColorHover": "#7fe7c4",
+    "primaryColorPressed": "#5acea7",
+    "primaryColorSuppl": " rgb(42, 148, 125)"
+  },
+  "blue": {
+    "primaryColor": "#3a84fc",
+    "primaryColorHover": "#5a9dff",
+    "primaryColorPressed": "#1f6fe1",
+    "primaryColorSuppl": "rgb(26, 110, 202)"
+  },
+  "purple": {
+    "primaryColor": "#9463e2",
+    "primaryColorHover": "#a97fe7",
+    "primaryColorPressed": "#7f5ace",
+    "primaryColorSuppl": "rgb(126, 86, 174)"
+  },
+  "red": {
+    "primaryColor": "#e25d63",
+    "primaryColorHover": "#ff6f75",
+    "primaryColorPressed": "#c74a50",
+    "primaryColorSuppl": "rgb(179, 69, 75)"
+  },
+  "pink": {
+    "primaryColor": "#e2638b",
+    "primaryColorHover": "#ff7fa5",
+    "primaryColorPressed": "#c75a75",
+    "primaryColorSuppl": "rgb(179, 69, 92)"
+  },
+  "yellow": {
+    "primaryColor": "#f0d25d",
+    "primaryColorHover": "#f7e36f",
+    "primaryColorPressed": "#d8b84a",
+    "primaryColorSuppl": "rgb(224, 180, 52)"
+  },
+  "orange": {
+    "primaryColor": "#e28863",
+    "primaryColorHover": "#ff9d75",
+    "primaryColorPressed": "#c7754a",
+    "primaryColorSuppl": "rgb(214, 129, 77)"
+  },
+  "teal": {
+    "primaryColor": "#63e2c0",
+    "primaryColorHover": "#7fe7d7",
+    "primaryColorPressed": "#5aceb1",
+    "primaryColorSuppl": "rgb(42, 148, 125)"
+  },
+  "cyan": {
+    "primaryColor": "#63e2c0",
+    "primaryColorHover": "#7fe7d7",
+    "primaryColorPressed": "#5aceb1",
+    "primaryColorSuppl": "rgb(42, 148, 125)"
+  },
+  "brown": {
+    "primaryColor": "#8b6c3f",
+    "primaryColorHover": "#a08659",
+    "primaryColorPressed": "#7e592d",
+    "primaryColorSuppl": "rgb(109, 91, 48)"
+  },
+  "gray": {
+    "primaryColor": "#888888",
+    "primaryColorHover": "#a1a1a1",
+    "primaryColorPressed": "#6d6d6d",
+    "primaryColorSuppl": "rgb(130, 130, 130)"
+  },
+  "lavender": {
+    "primaryColor": "#b763e2",
+    "primaryColorHover": "#cc7fe7",
+    "primaryColorPressed": "#a75ace",
+    "primaryColorSuppl": "rgb(87, 56, 119)"
+  },
+  "gold": {
+    "primaryColor": "#e2c463",
+    "primaryColorHover": "#e7d17f",
+    "primaryColorPressed": "#ceaa5a",
+    "primaryColorSuppl": "rgb(184, 148, 66)"
+  },
+  "indigo": {
+    "primaryColor": "#636be2",
+    "primaryColorHover": "#7a87e7",
+    "primaryColorPressed": "#4d56ce",
+    "primaryColorSuppl": "rgb(71, 84, 174)"
+  }
+}
