@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getDefaultOptions, getUrl } from "@/scripts/api";
+import { getImageUrl } from "@/scripts/utils";
 import { ChevronDownOutline } from "@vicons/ionicons5";
 import axios from "axios";
 import {
@@ -195,7 +196,7 @@ function generateCode() {
               >
                 {{ suggestion }}
                 <template #icon v-if="icons[suggestion]">
-                  <n-avatar :src="icons[suggestion]" />
+                  <n-avatar :src="getImageUrl(icons[suggestion])" />
                 </template>
               </n-tag>
             </n-space>

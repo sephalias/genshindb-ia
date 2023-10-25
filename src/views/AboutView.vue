@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getImageUrl } from "@/scripts/utils";
 import axios from "axios";
 import { useMessage, type FormInst, type FormItemRule } from "naive-ui";
 import { onMounted, ref } from "vue";
@@ -11,14 +12,14 @@ const stack = [
     title: "Vue",
     description:
       "Vue.js is a progressive, incrementally-adoptable JavaScript framework for building UI on the web.",
-    logo: "/src/assets/img/logo/vue.svg",
+    logo: "img/logo/vue.svg",
     github: "https://github.com/vuejs/core",
     website: "https://vuejs.org",
   },
   {
     title: "Vite",
     description: "Next generation frontend tooling. It's fast!",
-    logo: "/src/assets/img/logo/vite.svg",
+    logo: "img/logo/vite.svg",
     github: "https://github.com/vitejs/vite",
     website: "https://vitejs.dev",
   },
@@ -26,14 +27,14 @@ const stack = [
     title: "Pinia",
     description:
       "🍍 Intuitive, type safe, light and flexible Store for Vue using the composition api with DevTools support",
-    logo: "/src/assets/img/logo/pinia.svg",
+    logo: "img/logo/pinia.svg",
     github: "https://github.com/vuejs/pinia",
     website: "https://pinia.vuejs.org/",
   },
   {
     title: "Axios",
     description: "About Promise based HTTP client for the browser and node.js",
-    logo: "/src/assets/img/logo/axios.svg",
+    logo: "img/logo/axios.svg",
     github: "https://github.com/axios/axios",
     website: "https://axios-http.com",
   },
@@ -41,7 +42,7 @@ const stack = [
     title: "vue-json-pretty",
     description:
       "A JSON tree view component that is easy to use and also supports data selection.",
-    logo: "/src/assets/img/logo/vue-json-pretty.svg",
+    logo: "img/logo/vue-json-pretty.svg",
     github: "https://github.com/leezng/vue-json-pretty",
     website: "https://axios-http.com",
   },
@@ -49,7 +50,7 @@ const stack = [
     title: "NaiveUI",
     description:
       "Vue 3 Component Library. Fairly Complete. Theme Customizable. Uses TypeScript. Fast.",
-    logo: "/src/assets/img/logo/naive.svg",
+    logo: "img/logo/naive.svg",
     github: "https://github.com/tusen-ai/naive-ui",
     website: "https://www.naiveui.com",
   },
@@ -57,7 +58,7 @@ const stack = [
     title: "IonIcons",
     description:
       "Premium hand-crafted icons built by Ionic, for Ionic apps and web apps everywhere 🌎",
-    logo: "/src/assets/img/logo/ionic.svg",
+    logo: "img/logo/ionic.svg",
     github: "https://github.com/ionic-team/ionicons",
     website: "https://ionicons.com",
   },
@@ -203,7 +204,7 @@ function validateFeedbackForm(e: MouseEvent) {
         <n-list-item v-for="item in stack">
           <template #prefix>
             <n-image
-              :src="item.logo"
+              :src="getImageUrl(item.logo)"
               :alt="item.title + 'logo'"
               style="pointer-events: none"
               height="60"

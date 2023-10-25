@@ -174,7 +174,7 @@ function onModalClose() {
         style="max-width: 300"
         width="200"
         :src="imageUrl"
-        fallback-src="../src/assets/no-image.png"
+        :fallback-src="getImageUrl('img/no-image.png')"
         onload="onImageLoad"
         :on-load="onImageLoad"
         show-toolbar-tooltip
