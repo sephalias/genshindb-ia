@@ -19,6 +19,11 @@ const router = createRouter({
       name: "about",
       component: () => import("../views/AboutView.vue"),
     },
+    {
+      path: "/:catchAll(.*)*",
+      name: "notfound",
+      component: () => import("../views/flatpages/404.vue"),
+    },
   ],
 });
 
