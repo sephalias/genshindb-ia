@@ -191,7 +191,7 @@ function validateFeedbackForm(e: MouseEvent) {
                 <li>Manipulate Options.</li>
                 <li>Preview JSON Results.</li>
                 <li>Preview images.</li>
-                <li>Share generated API link and JavaScript Code.</li>
+                <li>Share generated API link, JavaScript Code and Query.</li>
               </ul>
             </n-space>
           </n-grid-item>

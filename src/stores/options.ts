@@ -6,8 +6,10 @@ export const useOptionsStore = defineStore({
   state: () => ({
     ...getDefaultOptions(),
   }),
-  getters: {
-    doubleCount: (state) => state.counter * 2,
+  getters: {},
+  actions: {
+    initializeOptions() {
+      this.state = { ...getDefaultOptions() };
+    },
   },
-  actions: {},
 });

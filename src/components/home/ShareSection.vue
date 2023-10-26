@@ -2,19 +2,20 @@
 import { ClipboardOutline } from "@vicons/ionicons5";
 import { useNotification } from "naive-ui";
 
-interface APISectionInterface {
+interface IShareSection {
   link: string;
 }
 
-const props = defineProps<APISectionInterface>();
+const props = defineProps<IShareSection>();
 
 const notification = useNotification();
 
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text);
+
   notification.create({
     title: "Success",
-    content: "API Link copied to clipboard.",
+    content: "Share link copied to clipboard.",
     duration: 2500,
     type: "success",
   });
@@ -22,7 +23,7 @@ function copyToClipboard(text: string) {
 </script>
 
 <template>
-  <n-card title="API Link" size="small" v-if="link">
+  <n-card title="Share this query" size="small" v-if="link">
     <template #header-extra>
       <n-button @click="copyToClipboard(props.link)">
         <template #icon>
@@ -33,10 +34,10 @@ function copyToClipboard(text: string) {
         Copy
       </n-button>
     </template>
-    <n-space>
+    <div style="overflow: auto">
       <n-a style="text-decoration: none" :href="props.link" target="_blank">
         {{ props.link }}
       </n-a>
-    </n-space>
+    </div>
   </n-card>
 </template>

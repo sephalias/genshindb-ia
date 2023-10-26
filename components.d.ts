@@ -18,6 +18,7 @@ declare module 'vue' {
     NCard: typeof import('naive-ui')['NCard']
     NCode: typeof import('naive-ui')['NCode']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
+    NDialogProvider: typeof import('naive-ui')['NDialogProvider']
     NDivider: typeof import('naive-ui')['NDivider']
     NEmpty: typeof import('naive-ui')['NEmpty']
     NForm: typeof import('naive-ui')['NForm']
@@ -38,6 +39,7 @@ declare module 'vue' {
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
     NModal: typeof import('naive-ui')['NModal']
     NNotificationProvider: typeof import('naive-ui')['NNotificationProvider']
+    NResult: typeof import('naive-ui')['NResult']
     NSelect: typeof import('naive-ui')['NSelect']
     NSkeleton: typeof import('naive-ui')['NSkeleton']
     NSpace: typeof import('naive-ui')['NSpace']
@@ -48,7 +50,9 @@ declare module 'vue' {
     NThing: typeof import('naive-ui')['NThing']
     NTooltip: typeof import('naive-ui')['NTooltip']
     OptionsSection: typeof import('./src/components/home/OptionsSection.vue')['default']
+    QueryLink: typeof import('./src/components/home/QueryLink.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ShareSection: typeof import('./src/components/home/ShareSection.vue')['default']
   }
 }

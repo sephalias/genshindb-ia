@@ -75,7 +75,10 @@ onMounted(() => {
     settings.setColor(themeColor);
   }
 
-  setTimeout(() => (activeKey.value = router.name), 2000);
+  setTimeout(() => {
+    if (router.name === "query") activeKey.value = "home";
+    else activeKey.value = router.name;
+  }, 2000);
 });
 
 const isDark = computed({
@@ -135,89 +138,91 @@ function toggleNav(event: {
   >
     <n-notification-provider placement="bottom">
       <n-message-provider>
-        <n-layout id="main">
-          <n-layout-header
-            style="
-              height: 64px;
-              --side-padding: 32px;
-              grid-template-columns: calc(272px - var(--side-padding)) 1fr auto;
-            "
-            bordered
-            position="static"
-            class="nav"
-          >
-            <div class="n-text ui-logo">
-              <router-link
-                :to="{ name: 'home' }"
-                style="color: inherit; text-decoration: none"
-                @click="activeKey = 'home'"
-              >
-                <b>GenshinDB</b>
-                <span style="font-weight: lighter"> Interactive</span>
-              </router-link>
-            </div>
-
-            <div style="display: flex; align-items: center">
-              <n-menu
-                v-model:value="activeKey"
-                mode="horizontal"
-                :options="menuOptions"
-              />
-            </div>
-
-            <div class="nav-end">
-              <n-space style="align-items: center">
-                <n-button
-                  @click="
-                    settings.themeAuto
-                      ? settings.applyFixedTheme()
-                      : settings.applySystemTheme()
-                  "
-                  round
+        <n-dialog-provider>
+          <n-layout id="main">
+            <n-layout-header
+              style="
+                height: 64px;
+                --side-padding: 32px;
+                grid-template-columns: calc(272px - var(--side-padding)) 1fr auto;
+              "
+              bordered
+              position="static"
+              class="nav"
+            >
+              <div class="n-text ui-logo">
+                <router-link
+                  :to="{ name: 'home' }"
+                  style="color: inherit; text-decoration: none"
+                  @click="activeKey = 'home'"
                 >
-                  <template #icon>
-                    <n-icon>
-                      <color-palette-outline />
-                    </n-icon>
-                  </template>
-                  {{ settings.themeAuto ? "Auto" : "Fixed" }}
-                </n-button>
-                <n-switch
-                  v-model:value="isDark"
-                  size="large"
-                  @update="toggleTheme"
-                  v-if="!settings.themeAuto"
-                >
-                  <template #checked-icon>
-                    <n-icon :component="Moon" />
-                  </template>
-                  <template #unchecked-icon>
-                    <n-icon :component="Sunny" />
-                  </template>
-                </n-switch>
+                  <b>GenshinDB</b>
+                  <span style="font-weight: lighter"> Interactive</span>
+                </router-link>
+              </div>
+
+              <div style="display: flex; align-items: center">
+                <n-menu
+                  v-model:value="activeKey"
+                  mode="horizontal"
+                  :options="menuOptions"
+                />
+              </div>
+
+              <div class="nav-end">
+                <n-space style="align-items: center">
+                  <n-button
+                    @click="
+                      settings.themeAuto
+                        ? settings.applyFixedTheme()
+                        : settings.applySystemTheme()
+                    "
+                    round
+                  >
+                    <template #icon>
+                      <n-icon>
+                        <color-palette-outline />
+                      </n-icon>
+                    </template>
+                    {{ settings.themeAuto ? "Auto" : "Fixed" }}
+                  </n-button>
+                  <n-switch
+                    v-model:value="isDark"
+                    size="large"
+                    @update="toggleTheme"
+                    v-if="!settings.themeAuto"
+                  >
+                    <template #checked-icon>
+                      <n-icon :component="Moon" />
+                    </template>
+                    <template #unchecked-icon>
+                      <n-icon :component="Sunny" />
+                    </template>
+                  </n-switch>
+                </n-space>
+              </div>
+            </n-layout-header>
+            <n-layout-content content-style="padding: 32px;" id="main-content">
+              <router-view />
+            </n-layout-content>
+            <n-layout-footer
+              bordered
+              id="footer"
+              style="
+                margin-top: auto;
+                height: 50px;
+                padding-left: 30px;
+                padding-right: 30px;
+                padding-top: 15px;
+                padding-bottom: 15px;
+              "
+            >
+              <n-space justify="space-around">
+                &copy; 2021-{{ new Date().getFullYear() }} Sephalias
               </n-space>
-            </div>
-          </n-layout-header>
-          <n-layout-content content-style="padding: 32px;" id="main-content">
-            <router-view />
-          </n-layout-content>
-          <n-layout-footer
-            bordered
-            id="footer"
-            style="
-              margin-top: auto;
-              height: 50px;
-              padding-left: 30px;
-              padding-right: 30px;
-              padding-top: 15px;
-              padding-bottom: 15px;
-            "
-          >
-            <n-space justify="space-around">
-              &copy; 2021-{{ new Date().getFullYear() }} Sephalias
-            </n-space>
-          </n-layout-footer>
-        </n-layout>
+            </n-layout-footer>
+          </n-layout>
+        </n-dialog-provider>
       </n-message-provider>
     </n-notification-provider>
   </n-config-provider>

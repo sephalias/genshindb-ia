@@ -2,13 +2,15 @@
 import icons from "@/assets/json/icons.json";
 import schemaJson from "@/assets/json/schema.json";
 import suggestions from "@/assets/json/suggestions.json";
+import router from "@/router";
 import { getDefaultOptions, getUrl } from "@/scripts/api";
 import { getImageUrl } from "@/scripts/utils";
 import { useOptionsStore } from "@/stores/options";
 import { ChevronDownOutline } from "@vicons/ionicons5";
 import axios from "axios";
-import { useNotification } from "naive-ui";
-import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
+import { useDialog, useNotification } from "naive-ui";
+import { computed, defineAsyncComponent, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 
 axios.defaults.headers.get["content-type"] = "application/json";
 
@@ -26,17 +28,26 @@ const OptionsSection = defineAsyncComponent(
   () => import("@/components/home/OptionsSection.vue")
 );
 
-const optionsStore = useOptionsStore().$state;
+const ShareSection = defineAsyncComponent(
+  () => import("@/components/home/ShareSection.vue")
+);
+
+const optionsStore = useOptionsStore();
 const notification = useNotification();
+const dialog = useDialog();
+const route = useRoute();
 
 const folder = ref("");
 const category = ref("");
 const query = ref("");
 
-const suggestionsShown = ref({});
+const suggestionsShown = ref();
 
 const code = ref("");
-const link = ref<string>("");
+const APILink = ref<string>("");
+const shareLink = ref<string>("");
+const fromLinkReady = ref(false);
+
 const isLoading = ref(false);
 const queryDisabled = ref(false);
 
@@ -46,6 +57,46 @@ onMounted(() => {
   if (!folder.value) folder.value = Object.keys(schemaJson)[0];
   if (!category.value && folder.value)
     category.value = (schemaJson as any)[folder.value][0];
+  if (category.value === "all") query.value = "names";
+  if (route.name === "query") {
+    let routeQuery = route.query;
+    if (!routeQuery["folder"]) showQueryError("No Folder");
+    else if (!routeQuery["category"]) showQueryError("No Category");
+    else if (!routeQuery["query"]) showQueryError("No Query");
+    else {
+      folder.value = `${routeQuery["folder"]?.toString()}`;
+      category.value = `${routeQuery["category"]?.toString()}`;
+      query.value = `${routeQuery["query"]?.toString()}`;
+
+      let options = routeQuery["options"]?.toString();
+      options?.split(";").forEach((option) => {
+        let optionItem = option.split("=");
+
+        let key = optionItem[0];
+        let value = null;
+
+        if (optionItem[1] === "true" || optionItem[1] === "false") {
+          value = optionItem[1] === "true" ? true : false;
+        } else if (key === "resultLanguage") {
+          value = optionItem[1];
+        } else {
+          try {
+            value = optionItem[1].split(",");
+          } catch {
+            showQueryError("Invalid Options");
+            return;
+          }
+        }
+        optionsStore.initializeOptions();
+        optionsStore.$state[key] = value;
+      });
+
+      setTimeout(() => {
+        getData();
+        fromLinkReady.value = true;
+      }, 2000);
+    }
+  }
 });
 
 const folderOptions = computed({
@@ -70,22 +121,22 @@ const categoryOptions = computed({
   set() {},
 });
 
-watch(folder, (newFolder) => {
+function onFolderUpdate() {
   category.value = (categoryOptions.value as any)[0].value;
-});
+}
 
-watch(category, (newCategory) => {
+function onCategoryUpdate() {
   suggestionsShown.value = (suggestions as any)[category.value];
   query.value = category.value === "all" ? "names" : "";
   queryDisabled.value = category.value === "all" ? true : false;
-});
+}
 
 function getData() {
-  link.value = generateURL();
+  APILink.value = generateURL();
   isLoading.value = true;
   response.value = {};
   axios
-    .get(link.value)
+    .get(APILink.value)
     .then((resp) => {
       response.value = { ...resp };
     })
@@ -100,14 +151,14 @@ function getData() {
     })
     .finally(() => {
       isLoading.value = false;
-      generateURL();
       generateCode();
+      generateShareURL();
     });
 }
 
 function generateURL() {
   const defaultOptions = getDefaultOptions();
-  let codeOptions = Object.entries(optionsStore).filter(
+  let codeOptions = Object.entries(optionsStore.$state).filter(
     ([key, value]) =>
       (!Array.isArray(value) && value !== defaultOptions[key]) ||
       (Array.isArray(value) &&
@@ -119,7 +170,7 @@ function generateURL() {
 
 function generateCode() {
   const defaultOptions = getDefaultOptions();
-  let codeOptions = Object.entries(optionsStore).filter(
+  let codeOptions = Object.entries(optionsStore.$state).filter(
     ([key, value]) =>
       (!Array.isArray(value) && value !== defaultOptions[key]) ||
       (Array.isArray(value) &&
@@ -137,6 +188,44 @@ function generateCode() {
     }", ${JSON.stringify(Object.fromEntries(codeOptions))});`;
   }
 }
+
+function generateShareURL() {
+  const defaultOptions = getDefaultOptions();
+  let codeOptions = Object.entries(optionsStore.$state).filter(
+    ([key, value]) =>
+      (!Array.isArray(value) && value !== defaultOptions[key]) ||
+      (Array.isArray(value) &&
+        JSON.stringify(value.sort()) !==
+          JSON.stringify(defaultOptions[key].sort()))
+  );
+
+  let link = "";
+  const options: any = JSON.parse(
+    JSON.stringify(Object.fromEntries(codeOptions))
+  );
+  for (let option in options) {
+    link += `${option}=${options[option]};`;
+  }
+  let optionsLink = link.toString().substring(0, link.length - 1);
+
+  let url = ` ${window.location.origin}/query?folder=${folder.value}&category=${category.value}&query=${query.value}`;
+  if (Object.keys(codeOptions).length > 0) url += `&options=${optionsLink}`;
+  shareLink.value = url;
+}
+
+function showQueryError(message: string) {
+  dialog.error({
+    title: "Query Link Invalid",
+    content: message,
+    positiveText: "Close",
+    onPositiveClick: () => {
+      router.push({ name: "home" });
+      code.value = "";
+      APILink.value = "";
+      shareLink.value = "";
+    },
+  });
+}
 </script>
 
 <template>
@@ -150,6 +239,7 @@ function generateCode() {
               filterable
               placeholder="Select a folder"
               :options="folderOptions"
+              @update:value="onFolderUpdate"
             >
             </n-select>
             <n-select
@@ -159,6 +249,7 @@ function generateCode() {
               placeholder="Select a
             category"
               :options="categoryOptions"
+              @update:value="onCategoryUpdate"
             />
             <n-input
               v-model:value="query"
@@ -187,8 +278,8 @@ function generateCode() {
                 @click="query = suggestion"
               >
                 {{ suggestion }}
-                <template #icon v-if="icons[suggestion]">
-                  <n-avatar :src="getImageUrl(icons[suggestion])" />
+                <template #icon v-if="(icons as any)[suggestion]">
+                  <n-avatar :src="getImageUrl((icons as any)[suggestion])" />
                 </template>
               </n-tag>
             </n-space>
@@ -196,7 +287,8 @@ function generateCode() {
           <OptionsSection />
         </n-card>
         <CodeSection :code="code" />
-        <ApiSection :link="link" />
+        <ApiSection :link="APILink" />
+        <ShareSection :link="shareLink" />
       </n-space>
     </n-gi>
     <n-gi>
@@ -205,6 +297,4 @@ function generateCode() {
   </n-grid>
 </template>
 
-<style>
-/* TODO: flex-wrap:none on 1366 */
-</style>
+<style></style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ClipboardOutline } from "@vicons/ionicons5";
 import { useNotification } from "naive-ui";
 
 interface ICodeSection {
@@ -24,7 +25,14 @@ function copyToClipboard(text: string) {
 <template>
   <n-card title="Javascript Code" size="small" v-if="code">
     <template #header-extra>
-      <n-button @click="copyToClipboard(props.code)">Copy</n-button>
+      <n-button @click="copyToClipboard(props.code)">
+        <template #icon>
+          <n-icon>
+            <ClipboardOutline />
+          </n-icon>
+        </template>
+        Copy
+      </n-button>
     </template>
     <div style="overflow: auto">
       <n-space horizontal :size="16">
