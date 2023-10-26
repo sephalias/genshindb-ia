@@ -51,7 +51,6 @@ declare module 'vue' {
     NThing: typeof import('naive-ui')['NThing']
     NTooltip: typeof import('naive-ui')['NTooltip']
     OptionsSection: typeof import('./src/components/home/OptionsSection.vue')['default']
-    QueryLink: typeof import('./src/components/home/QueryLink.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ShareSection: typeof import('./src/components/home/ShareSection.vue')['default']
