@@ -8,7 +8,7 @@ import { getImageUrl } from "@/scripts/utils";
 import { useOptionsStore } from "@/stores/options";
 import { ChevronDownOutline } from "@vicons/ionicons5";
 import axios from "axios";
-import { useDialog, useNotification } from "naive-ui";
+import { useDialog, useLoadingBar, useNotification } from "naive-ui";
 import { computed, defineAsyncComponent, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
@@ -36,6 +36,7 @@ const optionsStore = useOptionsStore();
 const notification = useNotification();
 const dialog = useDialog();
 const route = useRoute();
+const loadingBar = useLoadingBar();
 
 const folder = ref("");
 const category = ref("");
@@ -134,6 +135,7 @@ function onCategoryUpdate() {
 function getData() {
   APILink.value = generateURL();
   isLoading.value = true;
+  loadingBar.start();
   response.value = {};
   axios
     .get(APILink.value)
@@ -142,6 +144,7 @@ function getData() {
     })
     .catch(() => {
       isLoading.value = false;
+      loadingBar.error();
       notification.create({
         title: "Error",
         content: "Failed to retrieve data.",
@@ -151,6 +154,7 @@ function getData() {
     })
     .finally(() => {
       isLoading.value = false;
+      loadingBar.finish();
       generateCode();
       generateShareURL();
     });
