@@ -1,15 +1,25 @@
 import { getDefaultOptions } from "@/scripts/api";
 import { defineStore } from "pinia";
 
-export const useOptionsStore = defineStore({
-  id: "options",
-  state: () => ({
+interface OptionsState {
+  dumpResult: boolean;
+  matchNames: boolean;
+  matchAltNames: boolean;
+  matchAliases: boolean;
+  matchCategories: boolean;
+  verboseCategories: boolean;
+  queryLanguages: string[];
+  resultLanguage: string;
+}
+
+export const useOptionsStore = defineStore("options", {
+  state: (): OptionsState => ({
     ...getDefaultOptions(),
   }),
   getters: {},
   actions: {
     initializeOptions() {
-      this.state = { ...getDefaultOptions() };
+      Object.assign(this, getDefaultOptions());
     },
   },
 });

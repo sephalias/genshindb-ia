@@ -1,8 +1,13 @@
 import { defineStore } from "pinia";
 
-export const useSettingsStore = defineStore({
-  id: "settings",
-  state: () => ({
+interface SettingsState {
+  theme: string;
+  themeAuto: boolean;
+  themeColor: string;
+}
+
+export const useSettingsStore = defineStore("settings", {
+  state: (): SettingsState => ({
     theme: "",
     themeAuto: false,
     themeColor: "green",
