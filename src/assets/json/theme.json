@@ -45,42 +45,36 @@
     "primaryColor": "#63e2c0",
     "primaryColorHover": "#7fe7d7",
     "primaryColorPressed": "#5aceb1",
-    "primaryColorSuppl": "rgb(42, 148, 125)"
-  },
-  "cyan": {
-    "primaryColor": "#63e2c0",
-    "primaryColorHover": "#7fe7d7",
-    "primaryColorPressed": "#5aceb1",
-    "primaryColorSuppl": "rgb(42, 148, 125)"
+    "primaryColorSuppl": "#2A947D"
   },
   "brown": {
     "primaryColor": "#8b6c3f",
     "primaryColorHover": "#a08659",
     "primaryColorPressed": "#7e592d",
-    "primaryColorSuppl": "rgb(109, 91, 48)"
+    "primaryColorSuppl": "#6D5B30"
   },
   "gray": {
     "primaryColor": "#888888",
     "primaryColorHover": "#a1a1a1",
     "primaryColorPressed": "#6d6d6d",
-    "primaryColorSuppl": "rgb(130, 130, 130)"
+    "primaryColorSuppl": "#828282"
   },
   "lavender": {
     "primaryColor": "#b763e2",
     "primaryColorHover": "#cc7fe7",
     "primaryColorPressed": "#a75ace",
-    "primaryColorSuppl": "rgb(87, 56, 119)"
+    "primaryColorSuppl": "#573877"
   },
   "gold": {
     "primaryColor": "#e2c463",
     "primaryColorHover": "#e7d17f",
     "primaryColorPressed": "#ceaa5a",
-    "primaryColorSuppl": "rgb(184, 148, 66)"
+    "primaryColorSuppl": "#B89442"
   },
   "indigo": {
     "primaryColor": "#636be2",
     "primaryColorHover": "#7a87e7",
     "primaryColorPressed": "#4d56ce",
-    "primaryColorSuppl": "rgb(71, 84, 174)"
+    "primaryColorSuppl": "#4754AE"
   }
 }
