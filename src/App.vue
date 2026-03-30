@@ -29,7 +29,7 @@ const menuOptions: MenuOption[] = [
             name: "home",
           },
         },
-        { default: () => "Home" }
+        { default: () => "Home" },
       ),
     key: "home",
   },
@@ -42,7 +42,7 @@ const menuOptions: MenuOption[] = [
             name: "settings",
           },
         },
-        { default: () => "Settings" }
+        { default: () => "Settings" },
       ),
     key: "settings",
   },
@@ -55,7 +55,7 @@ const menuOptions: MenuOption[] = [
             name: "about",
           },
         },
-        { default: () => "About" }
+        { default: () => "About" },
       ),
     key: "about",
   },
@@ -145,7 +145,9 @@ function toggleNav(event: {
                 style="
                   height: 64px;
                   --side-padding: 32px;
-                  grid-template-columns: calc(272px - var(--side-padding)) 1fr auto;
+                  grid-template-columns:
+                    calc(272px - var(--side-padding))
+                    1fr auto;
                 "
                 bordered
                 position="static"

@@ -3,41 +3,67 @@ import gdbapiConfig from "@/assets/json/gdbapiConfig.json";
 // @ts-ignore
 const baseUrl = import.meta.env.VITE_APP_API_BASE_URL;
 
+type Options = Record<
+  string,
+  string | number | boolean | Array<string | number>
+>;
+
 /**
- * Fetches data from api.
- *
- * @param {string} folder
- * @param {string} category
- * @param {string} query
- * @param {Options} options
- *
- * */
-export const getUrl = function (folder: string, query: string, options: any) {
-  var url = baseUrl + folder;
-  var params = "query=" + query;
+ * Build a safe URL for the API.
+ * @param folder The API folder (e.g. "characters")
+ * @param query The main query string
+ * @param options Optional query options
+ */
+export const getUrl = function (
+  folder: string,
+  query: string,
+  options?: Options,
+) {
+  const base = String(baseUrl || "").trim();
+  const cleanFolder = String(folder || "").replace(/^\/+/, "");
+
+  const params = new URLSearchParams();
+  if (query !== undefined && query !== null && String(query) !== "")
+    params.append("query", String(query));
 
   if (options) {
-    const optionsObject = JSON.parse(JSON.stringify(options));
-    for (let option in optionsObject) {
-      params += "&" + option + "=" + options[option];
+    for (const [key, value] of Object.entries(options)) {
+      if (value === undefined || value === null) continue;
+      if (Array.isArray(value)) {
+        for (const v of value) params.append(key, String(v));
+      } else {
+        params.append(key, String(value));
+      }
     }
   }
-  url += "?" + params;
 
+  if (base) {
+    const baseWithSlash = base.endsWith("/") ? base : base + "/";
+    const u = new URL(cleanFolder, baseWithSlash);
+    const p = params.toString();
+    if (p) u.search = p;
+    return u.toString();
+  }
+
+  // Fallback to relative path
+  let url = "/" + cleanFolder;
+  const p = params.toString();
+  if (p) url += "?" + p;
   return url;
 };
 
 /**
  * Returns a deep copy of the default options for genshin-db-api.
- * */
+ */
 export const getDefaultOptions = function () {
   return JSON.parse(JSON.stringify(gdbapiConfig.defaultOptions));
 };
 
 /**
- * Returns a shallow copy of the languages available for genshin-db-api.
- * */
-
+ * Returns a copy of the languages available for genshin-db-api.
+ */
 export const getLanguages = function () {
-  return JSON.parse(JSON.stringify(gdbapiConfig.languages));
+  return Array.isArray(gdbapiConfig.languages)
+    ? [...gdbapiConfig.languages]
+    : JSON.parse(JSON.stringify(gdbapiConfig.languages));
 };
