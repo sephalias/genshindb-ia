@@ -15,21 +15,21 @@ import { useRoute } from "vue-router";
 axios.defaults.headers.get["content-type"] = "application/json";
 
 const JsonView = defineAsyncComponent(
-  () => import("@/components/home/JsonView.vue")
+  () => import("@/components/home/JsonView.vue"),
 );
 const CodeSection = defineAsyncComponent(
-  () => import("@/components/home/CodeSection.vue")
+  () => import("@/components/home/CodeSection.vue"),
 );
 const ApiSection = defineAsyncComponent(
-  () => import("@/components/home/APISection.vue")
+  () => import("@/components/home/APISection.vue"),
 );
 
 const OptionsSection = defineAsyncComponent(
-  () => import("@/components/home/OptionsSection.vue")
+  () => import("@/components/home/OptionsSection.vue"),
 );
 
 const ShareSection = defineAsyncComponent(
-  () => import("@/components/home/ShareSection.vue")
+  () => import("@/components/home/ShareSection.vue"),
 );
 
 const optionsStore = useOptionsStore();
@@ -89,7 +89,7 @@ onMounted(() => {
           }
         }
         optionsStore.initializeOptions();
-        optionsStore.$state[key] = value;
+        (optionsStore.$state as Record<string, any>)[key] = value;
       });
 
       setTimeout(() => {
@@ -167,7 +167,7 @@ function generateURL() {
       (!Array.isArray(value) && value !== defaultOptions[key]) ||
       (Array.isArray(value) &&
         JSON.stringify(value.sort()) !==
-          JSON.stringify(defaultOptions[key].sort()))
+          JSON.stringify(defaultOptions[key].sort())),
   );
   return getUrl(folder.value, query.value, Object.fromEntries(codeOptions));
 }
@@ -179,7 +179,7 @@ function generateCode() {
       (!Array.isArray(value) && value !== defaultOptions[key]) ||
       (Array.isArray(value) &&
         JSON.stringify(value.sort()) !==
-          JSON.stringify(defaultOptions[key].sort()))
+          JSON.stringify(defaultOptions[key].sort())),
   );
 
   if (Object.keys(codeOptions).length === 0) {
@@ -200,12 +200,12 @@ function generateShareURL() {
       (!Array.isArray(value) && value !== defaultOptions[key]) ||
       (Array.isArray(value) &&
         JSON.stringify(value.sort()) !==
-          JSON.stringify(defaultOptions[key].sort()))
+          JSON.stringify(defaultOptions[key].sort())),
   );
 
   let link = "";
   const options: any = JSON.parse(
-    JSON.stringify(Object.fromEntries(codeOptions))
+    JSON.stringify(Object.fromEntries(codeOptions)),
   );
   for (let option in options) {
     link += `${option}=${options[option]};`;
