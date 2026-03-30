@@ -22,9 +22,17 @@ const defaultConfig = {
           ],
         },
       ],
+      // avoid generating a global .d.ts file during build to reduce plugin work
+      dts: false,
     }),
     Components({
+      // limit scanning to the project's components folder and only .vue files
+      dirs: ["src/components"],
+      extensions: ["vue"],
+      include: [/\.vue$/, /\.vue\?vue/],
       resolvers: [NaiveUiResolver()],
+      // disable generating declaration file to reduce build time
+      dts: false,
     }),
   ],
   resolve: {
