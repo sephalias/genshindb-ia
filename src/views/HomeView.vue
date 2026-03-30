@@ -42,7 +42,7 @@ const folder = ref("");
 const category = ref("");
 const query = ref("");
 
-const suggestionsShown = ref();
+const suggestionsShown = ref<any[] | Record<string, any> | null>(null);
 
 const code = ref("");
 const APILink = ref<string>("");
@@ -89,7 +89,10 @@ onMounted(() => {
           }
         }
         optionsStore.initializeOptions();
-        (optionsStore.$state as Record<string, any>)[key] = value;
+        const defaults = getDefaultOptions();
+        if (key in defaults) {
+          (optionsStore.$state as Record<string, any>)[key] = value;
+        }
       });
 
       setTimeout(() => {
@@ -123,7 +126,8 @@ const categoryOptions = computed({
 });
 
 function onFolderUpdate() {
-  category.value = (categoryOptions.value as any)[0].value;
+  const first = (categoryOptions.value as any)[0];
+  if (first) category.value = first.value;
 }
 
 function onCategoryUpdate() {
@@ -161,28 +165,14 @@ function getData() {
 }
 
 function generateURL() {
-  const defaultOptions = getDefaultOptions();
-  let codeOptions = Object.entries(optionsStore.$state).filter(
-    ([key, value]) =>
-      (!Array.isArray(value) && value !== defaultOptions[key]) ||
-      (Array.isArray(value) &&
-        JSON.stringify(value.sort()) !==
-          JSON.stringify(defaultOptions[key].sort())),
-  );
+  const codeOptions = getActiveOptionsEntries();
   return getUrl(folder.value, query.value, Object.fromEntries(codeOptions));
 }
 
 function generateCode() {
-  const defaultOptions = getDefaultOptions();
-  let codeOptions = Object.entries(optionsStore.$state).filter(
-    ([key, value]) =>
-      (!Array.isArray(value) && value !== defaultOptions[key]) ||
-      (Array.isArray(value) &&
-        JSON.stringify(value.sort()) !==
-          JSON.stringify(defaultOptions[key].sort())),
-  );
+  const codeOptions = getActiveOptionsEntries();
 
-  if (Object.keys(codeOptions).length === 0) {
+  if (codeOptions.length === 0) {
     code.value = `genshinDb.${folder.value}("${
       query.value ? query.value : "names"
     }");`;
@@ -194,27 +184,31 @@ function generateCode() {
 }
 
 function generateShareURL() {
-  const defaultOptions = getDefaultOptions();
-  let codeOptions = Object.entries(optionsStore.$state).filter(
-    ([key, value]) =>
-      (!Array.isArray(value) && value !== defaultOptions[key]) ||
-      (Array.isArray(value) &&
-        JSON.stringify(value.sort()) !==
-          JSON.stringify(defaultOptions[key].sort())),
-  );
+  const codeOptions = getActiveOptionsEntries();
 
   let link = "";
   const options: any = JSON.parse(
     JSON.stringify(Object.fromEntries(codeOptions)),
   );
-  for (let option in options) {
+  for (const option of Object.keys(options)) {
     link += `${option}=${options[option]};`;
   }
-  let optionsLink = link.toString().substring(0, link.length - 1);
+  const optionsLink = link.length > 0 ? link.slice(0, -1) : "";
 
-  let url = ` ${window.location.origin}/query?folder=${folder.value}&category=${category.value}&query=${query.value}`;
-  if (Object.keys(codeOptions).length > 0) url += `&options=${optionsLink}`;
+  let url = `${window.location.origin}/query?folder=${folder.value}&category=${category.value}&query=${query.value}`;
+  if (codeOptions.length > 0) url += `&options=${optionsLink}`;
   shareLink.value = url;
+}
+
+function getActiveOptionsEntries() {
+  const defaultOptions = getDefaultOptions();
+  return Object.entries(optionsStore.$state).filter(
+    ([key, value]) =>
+      (!Array.isArray(value) && value !== (defaultOptions as any)[key]) ||
+      (Array.isArray(value) &&
+        JSON.stringify(value.slice().sort()) !==
+          JSON.stringify(((defaultOptions as any)[key] || []).slice().sort())),
+  );
 }
 
 function showQueryError(message: string) {
